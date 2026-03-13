@@ -111,10 +111,8 @@ body{font-family:'Noto Sans SC','DM Sans',-apple-system,sans-serif;background:va
 .gold-bn h2{font-size:18px;font-weight:900;color:var(--gold);margin-bottom:4px}
 .gold-bn p{font-size:13px;color:var(--text-secondary)}
 .vi{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:var(--radius);margin:10px 0}
-.mic{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--blue-500),var(--blue-400));color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;transition:transform .15s,box-shadow .15s}
-.mic:not(.rec):hover{transform:scale(1.12);box-shadow:0 0 0 7px rgba(33,128,232,.15)}
+.mic{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--blue-500),var(--blue-400));color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
 .mic.rec{background:var(--red);animation:mp 1.5s ease infinite}
-.mic.wait{background:linear-gradient(135deg,var(--blue-200),var(--blue-300));animation:none!important}
 @keyframes mp{0%,100%{box-shadow:0 0 0 0 rgba(231,76,76,.3)}50%{box-shadow:0 0 0 10px rgba(231,76,76,0)}}
 .vw{display:flex;align-items:center;gap:2px;height:20px}
 .vw .b{width:3px;border-radius:3px;background:var(--blue-400);animation:wa .5s ease-in-out infinite alternate}
@@ -316,11 +314,6 @@ body{font-family:'Noto Sans SC','DM Sans',-apple-system,sans-serif;background:va
 .poster-actions{display:flex;gap:10px;justify-content:center;margin-top:16px}
 .btn-outline{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border:1.5px solid var(--blue-300);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;background:#fff;color:var(--blue-600)}
 .btn-outline:hover{background:var(--blue-50);border-color:var(--blue-400)}
-#floatMic{position:fixed;bottom:0;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;z-index:998;pointer-events:auto;background:transparent;border:none;border-radius:0;padding:18px 32px 20px;box-shadow:none;min-width:320px;transition:all .3s ease}
-#floatMic .fm-mic-row{display:flex;align-items:center;gap:16px}
-#floatMic .fm-label{font-size:12px;color:var(--text-muted);margin-top:8px;letter-spacing:.3px;text-align:center}
-.float-mic-btn{width:64px!important;height:64px!important;font-size:26px!important;box-shadow:0 6px 28px rgba(33,128,232,.35)!important}
-.mic.wait{background:linear-gradient(135deg,var(--blue-300),var(--blue-200));animation:none!important;cursor:default}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--blue-100);border-radius:3px}
 </style>
 </head>
@@ -387,90 +380,6 @@ function jmp(n){clr();sp=n;render()}
 function go(n){clr();csid();sc=n;sp=1;document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',i===n-1));$('nf').classList.add('hid');render()}
 function render(){switch(sc){case 1:r1();break;case 2:r2();break;case 3:r5();break;case 4:r3();break;case 5:r4();break;case 6:r6();break}}
 
-// ====== VOICE IDLE HELPER ======
-// Float mic bar: 3 states — idle (clickable) | rec (red pulse) | wait (grey, non-clickable)
-// Mic bar stays visible permanently; never removed on scene switch either.
-
-function _fmBuild(chatId){
-  let fm=$('floatMic');
-  if(!fm){ fm=document.createElement('div'); fm.id='floatMic'; document.body.appendChild(fm); }
-  fm.innerHTML=
-    `<div class="fm-mic-row">` +
-      `<button class="mic float-mic-btn" id="fmBtn" onclick="startRec('${chatId}')">🎤</button>` +
-      `<div class="vw fm-waves" style="height:28px;opacity:0"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div>` +
-    `</div>` +
-    `<div class="fm-label" id="fmLbl">点击麦克风开始语音输入</div>`;
-  return fm;
-}
-
-function _fmState(state, chatId){
-  // state: 'idle' | 'rec' | 'wait' | 'done'
-  const btn=$('fmBtn'), waves=document.querySelector('#floatMic .fm-waves'), lbl=$('fmLbl');
-  if(!btn) return;
-  btn.className='mic float-mic-btn';
-  btn.style.pointerEvents='auto';
-  btn.onclick=null;
-  waves.style.opacity='0';
-  if(state==='idle'){
-    btn.onclick=()=>startRec(chatId);
-    lbl.textContent='点击麦克风开始语音输入';
-  } else if(state==='rec'){
-    btn.classList.add('rec');
-    btn.style.pointerEvents='none';
-    waves.style.opacity='1';
-    lbl.textContent='正在录音…';
-  } else if(state==='wait'){
-    btn.classList.add('wait');
-    btn.style.pointerEvents='none';
-    waves.style.opacity='0.3';
-    lbl.textContent='识别完成，AI 处理中…';
-  } else if(state==='done'){
-    btn.classList.add('wait');
-    btn.style.pointerEvents='none';
-    lbl.textContent='已完成';
-  }
-}
-
-function idleMic(chatEl, chatId, chatItems){
-  _fmBuild(chatId);
-  _fmState('idle', chatId);
-  window['_viItems_'+chatId]={chatEl, chatId, chatItems};
-}
-
-function startRec(chatId){
-  const store=window['_viItems_'+chatId]; if(!store)return;
-  _fmState('rec', chatId);
-  // 1.8s later: voice recognised → run items strictly in sequence
-  const t=setTimeout(()=>{
-    _fmState('wait', chatId);
-    rChatSeq(store.chatEl, store.chatItems, chatId);
-  }, 1800);
-  T.push(t);
-}
-
-// Strict sequential renderer:
-//   items[0]  = usr bubble     → insert, wait 700ms, then next
-//   items[1]  = ai-think (tk)  → insert, run anim, wait for anim DONE, then next
-//   items[2+] = AI outputs     → insert each with 500ms gap
-// When all done: mic → 'done'
-function rChatSeq(el, items, chatId){
-  function step(i){
-    if(i >= items.length){ _fmState('done', chatId); return; }
-    const it=items[i];
-    el.insertAdjacentHTML('beforeend', it.h);
-    if(it.tk){
-      // ai-think: wait for full animation to finish before next step
-      anim(it.tk, it.tc, ()=>{ const t=setTimeout(()=>step(i+1), 400); T.push(t); });
-    } else {
-      // normal item: fixed gap then next
-      const gap = i===0 ? 700 : 500;
-      const t=setTimeout(()=>step(i+1), gap);
-      T.push(t);
-    }
-  }
-  step(0);
-}
-
 // ====== SCENE 1 ======
 function r1(){
   $('C').innerHTML=`
@@ -482,14 +391,21 @@ function r1(){
 function r1s(){
   const c=$('c1');
   c.innerHTML=`<div class="blk"><div class="blk-t"><span class="ico">💬</span> AI助手对话</div><div class="chat" id="ch1"></div></div>`;
-  const ch=$('ch1');
-  idleMic(ch,'ch1',[
-    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我分析一下业务区整体客户资源分布，特别是AB类、中高温的高价值客户情况</div>`},
-    {d:1500,h:`<div class="ai-think" id="t1a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①分析维度=客户资源分布 ②重点关注=中高温客户活动策略 ③低温客户激活方案</div><div class="tl">▸ 正在调取业务区全量客户数据，按客温分层：中高温客户（AB类）5,739人、低温客户63,249名，匹配各层适配活动类型…</div><div class="tl">▸ 策略推导：中高温客户转化意愿强，适合线下高频触达（健康权益发布会等转化型活动），每月4场可覆盖主力客群</div><div class="tl">▸ 低温客户激活：优先推动线上活动参与、互动内容触达，逐步升温后再导入线下转化流程</div><div class="tl">▸ 营业部层面：每周1场健康主题部课活动，确保基层持续客户接触节奏，正在生成《客户活动策划方案》…</div><span class="cur"></span></div>`,tk:'t1a',tc:5},
+  rChat($('ch1'),[
+    // voice input
+    {d:300,h:`<div class="vi"><button class="mic rec">🎤</button><div class="vw"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div><div style="flex:1;font-size:13px;color:var(--text-primary);font-weight:500">正在录音…</div></div>`},
+    // user message
+    {d:2000,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我分析一下业务区整体客户资源分布，特别是AB类、中高温的高价值客户情况</div>`},
+    // AI thinking
+    {d:1500,h:`<div class="ai-think" id="t1a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①分析维度=客户资源分布 ②重点关注=AB类客户 ③筛选条件=中高温高价值客户</div><div class="tl">▸ 正在调取业务区全量客户数据，按客温（高温/中温/低温）× 客价（A类/B类/C类/D类）交叉分组，共计12个客户象限…</div><div class="tl">▸ 分析完成：AB类中高温高价值客户共5,739人 ｜ 低温客户63,249名 ｜ 同时匹配司庆季系统下发目标客户名单41,816人</div><div class="tl">▸ 目标客户明细：旺财资金闲置客户183名、医疗险续保客户8,504人等，各名单客温客价分布已生成</div><div class="tl">▸ 正在基于客户资源画像和目标客户特征，自动匹配最优活动策略… 高价值客户重点触达，低温客户同步激活，推荐健康权益主题方向</div><span class="cur"></span></div>`,tk:'t1a',tc:5},
+    // AI output 1 - customer map
     {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已为您生成业务区客户地图，包括客户的客温客价分布情况，其中AB类/中高温的高价值客户有5,739人，63,249名低温客户。同时，司庆季系统下发的目标客户是41,816人，包括旺财资金闲置客户183名、医疗险续保客户8,504人等，及各名单中的客温客价分布情况。</div>`},
+    // customer map card
     {d:600,h:`<div class="cust-map" style="opacity:0;animation:fu .5s ease forwards"><div class="cust-map-head">📊 业务区客户资源地图</div><div class="cust-map-body"><div class="cust-map-grid" style="grid-template-columns:repeat(4,1fr)"><div class="cm-cell highlight"><div class="cm-val">5,739</div><div class="cm-label">AB类/中高温<br>高价值客户</div></div><div class="cm-cell" style="border-left:3px solid var(--blue-300)"><div class="cm-val" style="color:var(--blue-500)">63,249</div><div class="cm-label">低温客户</div></div><div class="cm-cell"><div class="cm-val">41,816</div><div class="cm-label">司庆季<br>目标客户</div></div><div class="cm-cell"><div class="cm-val">12</div><div class="cm-label">客温×客价<br>分析象限</div></div></div><div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px">📋 目标客户明细</div><div class="target-list"><div class="target-item"><span class="ti-name">医疗险续保客户</span><span class="ti-count">8,504人</span></div><div class="target-item"><span class="ti-name">重疾险到期客户</span><span class="ti-count">6,237人</span></div><div class="target-item"><span class="ti-name">年金险目标客户</span><span class="ti-count">5,892人</span></div><div class="target-item"><span class="ti-name">教育金储备客户</span><span class="ti-count">4,618人</span></div><div class="target-item"><span class="ti-name">养老规划客户</span><span class="ti-count">3,756人</span></div><div class="target-item"><span class="ti-name">旺财资金闲置客户</span><span class="ti-count">183人</span></div><div class="target-item"><span class="ti-name">其他目标客户</span><span class="ti-count">12,626人</span></div></div></div></div>`},
-    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>结合您业务区客户资源分布和目标客户情况，建议针对中高温客户每月组织4场以转化目的活动（例如健康权益发布会等），对低温客户推动参与线上活动、互动升温。同时，推动营业部每周组织1场健康主题的部课活动。已为您生成业务区客户活动策划方案，请查看《客户活动策划方案》。</div>`},
-    {d:600,h:`<div class="plan-card" style="opacity:0;animation:fu .5s ease forwards"><div class="plan-card-head"><div><div style="display:flex;align-items:center;gap:8px"><span class="pch-icon">📋</span><span class="pch-title">客户活动策划方案</span></div><div class="pch-sub" style="margin-left:32px">营销规划智能体自动生成 ｜ 司庆季专项</div></div></div><div class="plan-body"><div class="plan-section"><div class="ps-hd">🎯 活动目标</div><div class="plan-row"><div class="pr-icon">📌</div><div>针对<strong>中高温客户5,739人</strong>，每月组织<strong>4场转化型活动</strong>（健康权益发布会等），目标转化率<strong>≥15%</strong>，预计签单<strong>≥860单</strong></div></div><div class="plan-row"><div class="pr-icon">📌</div><div>针对<strong>63,249名低温客户</strong>推动参与线上活动、互动升温，目标客温提升率<strong>≥10%</strong>（约6,325人转为中温客户）</div></div><div class="plan-row"><div class="pr-icon">📌</div><div>营业部层面每周组织<strong>1场健康主题部课活动</strong>，确保基层持续客户接触节奏</div></div></div><div class="plan-section"><div class="ps-hd">📅 中高温客户·线下转化活动（每月4场）</div><div class="plan-row"><div class="pr-icon">1️⃣</div><div><strong>第1周 · 健康权益发布会</strong><br>目标客户：中高温AB类客户<br>活动形式：健康权益产品发布+专属体检权益兑换+1对1保障方案咨询<br>邀约目标：每场50-60人，各部按客户资源占比分配邀约任务</div></div><div class="plan-row"><div class="pr-icon">2️⃣</div><div><strong>第2周 · 家庭保障规划沙龙</strong><br>目标客户：有家庭保障缺口的中高温客户<br>活动形式：家庭风险诊断+保障方案设计+现场签单<br>邀约目标：每场40-50人，重点触达近3个月未联系客户</div></div><div class="plan-row"><div class="pr-icon">3️⃣</div><div><strong>第3周 · 财富健康双规划专场</strong><br>目标客户：AB类高价值客户+旺财资金闲置客户<br>活动形式：资产配置分享+健康管理方案+专属权益发放<br>邀约目标：每场40-50人，聚焦高净值客户精准邀约</div></div><div class="plan-row"><div class="pr-icon">4️⃣</div><div><strong>第4周 · 客户答谢暨权益体验会</strong><br>目标客户：本月已接触但未签单的中高温客户<br>活动形式：客户答谢+权益体验+二次促成<br>邀约目标：每场30-40人，由各代理人精准回访邀约</div></div></div><div class="plan-section"><div class="ps-hd">📱 低温客户·线上互动升温方案</div><div class="plan-row"><div class="pr-icon">📲</div><div><strong>每周内容触达：</strong>AI自动筛选63,249名低温客户，按客价分层推送个性化健康资讯与权益内容，每周2次精准触达，培养关注习惯</div></div><div class="plan-row"><div class="pr-icon">🎥</div><div><strong>每月线上直播：</strong>每月1场「健康小课堂」线上直播，低门槛吸引低温客户互动参与，设置直播专属福利引导留资升温</div></div><div class="plan-row"><div class="pr-icon">🎮</div><div><strong>互动活动：</strong>健康知识问答、线上打卡、权益领取等轻互动形式，提升低温客户活跃度与品牌粘性</div></div><div class="plan-row"><div class="pr-icon">📞</div><div><strong>AI外呼跟进：</strong>对互动频次高的低温客户，AI自动发起外呼邀约，推送代理人跟进，推动低温→中温转化</div></div></div><div class="plan-section"><div class="ps-hd">🏠 营业部级活动（每周1场）</div><div class="plan-row"><div class="pr-icon">🔄</div><div><strong>每周健康主题部课活动</strong><br>轮换主题：①健康权益科普 ②家庭保障规划 ③重疾/医疗险知识 ④养老规划分享<br>参与对象：各部辖区内目标客户，每场15-25人<br>执行要求：部经理负责邀约组织，主管协助客户接待与后续跟进</div></div></div><div class="plan-section"><div class="ps-hd">📈 效果追踪</div><div class="plan-row"><div class="pr-icon">✅</div><div><strong>线下活动：</strong>邀约完成率、到场率、48小时回访率、签单转化率<br><strong>线上互动：</strong>触达率、互动率、低温客户客温提升率<br><strong>追踪节奏：</strong>每场活动后3日内AI自动生成效果报告，每周五汇总周度数据</div></div></div></div></div>`},
+    // AI output 2 - activity suggestion
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>结合您业务区客户资源分布和目标客户情况，建议业务区每月组织2场健康权益主题活动重点触达高价值客户，同时针对63,249名低温客户制定激活计划，并推动营业部每周组织1场健康主题的部课活动。已为您生成业务区健康活动策划方案，请查看《健康活动策划方案》。</div>`},
+    // Activity plan card
+    {d:600,h:`<div class="plan-card" style="opacity:0;animation:fu .5s ease forwards"><div class="plan-card-head"><div><div style="display:flex;align-items:center;gap:8px"><span class="pch-icon">📋</span><span class="pch-title">健康活动策划方案</span></div><div class="pch-sub" style="margin-left:32px">营销规划智能体自动生成 ｜ 司庆季专项</div></div></div><div class="plan-body"><div class="plan-section"><div class="ps-hd">🎯 活动目标</div><div class="plan-row"><div class="pr-icon">📌</div><div>触达AB类中高温高价值客户<strong>5,739人</strong>，目标触达率<strong>≥80%</strong>（约4,591人），预期活动转化率<strong>≥15%</strong>，目标签单<strong>≥689单</strong></div></div><div class="plan-row"><div class="pr-icon">📌</div><div>针对<strong>63,249名低温客户</strong>制定分层激活计划，通过线上健康权益触达+线下活动邀约，目标激活率<strong>≥10%</strong>（约6,325人转为中温客户）</div></div><div class="plan-row"><div class="pr-icon">📌</div><div>司庆季目标客户41,816人中，重点推进医疗险续保客户（8,504人）和重疾险到期客户（6,237人）的转化</div></div></div><div class="plan-section"><div class="ps-hd">📅 活动频率与节奏</div><div class="plan-row"><div class="pr-icon">🏢</div><div><strong>业务区级活动：</strong>每月2场大型健康权益主题活动（第2周、第4周各1场），每场规模50-80人，由营业区统一组织</div></div><div class="plan-row"><div class="pr-icon">🏠</div><div><strong>营业部级活动：</strong>每周1场健康主题部课活动（每周三下午），每场规模15-25人，由各部经理组织执行</div></div><div class="plan-row"><div class="pr-icon">📱</div><div><strong>低温客户激活：</strong>每周批量推送健康权益资讯，每月1场线上直播科普活动，配合AI自动外呼触达，逐步提升客温</div></div></div><div class="plan-section"><div class="ps-hd">📝 业务区级活动方案（每月2场）</div><div class="plan-row"><div class="pr-icon">1️⃣</div><div><strong>第2周 ·「家庭健康守护计划」权益沙龙</strong><br>目标客户：医疗险续保客户+重疾险到期客户<br>活动形式：健康讲座+权益体检+1对1保障缺口分析<br>邀约目标：每场60人，由8个营业部按配额分配邀约任务</div></div><div class="plan-row"><div class="pr-icon">2️⃣</div><div><strong>第4周 ·「财富健康双规划」高端客户专场</strong><br>目标客户：AB类高价值客户+旺财资金闲置客户<br>活动形式：资产配置分享+健康管理方案+专属权益发放<br>邀约目标：每场50人，聚焦高净值客户精准邀约</div></div></div><div class="plan-section"><div class="ps-hd">📝 营业部级活动方案（每周1场）</div><div class="plan-row"><div class="pr-icon">🔄</div><div><strong>每周三 · 健康主题部课活动</strong><br>轮换主题：①医疗险知识科普 ②重疾保障规划 ③家庭健康管理 ④养老规划分享<br>参与对象：各部辖区内中高温目标客户，每场15-25人<br>执行要求：部经理负责邀约和组织，主管协助客户接待和后续跟进</div></div></div><div class="plan-section"><div class="ps-hd">🔥 低温客户激活方案</div><div class="plan-row"><div class="pr-icon">📱</div><div><strong>线上触达：</strong>AI自动筛选63,249名低温客户，按客价分层推送个性化健康权益资讯（AB类推专属权益，CD类推基础科普），每周2次精准触达</div></div><div class="plan-row"><div class="pr-icon">🎥</div><div><strong>直播激活：</strong>每月1场「健康小课堂」线上直播，内容围绕家庭保障规划，低门槛吸引低温客户参与互动，设置直播专属福利引导留资</div></div><div class="plan-row"><div class="pr-icon">📞</div><div><strong>AI外呼跟进：</strong>对直播互动客户和资讯高频阅读客户，AI自动发起外呼邀约，推送至代理人跟进名单，推动低温客户向中温转化</div></div></div><div class="plan-section"><div class="ps-hd">👥 邀约策略与分工</div><div class="plan-row"><div class="pr-icon">📞</div><div><strong>精准邀约：</strong>基于客温客价标签，AI自动为每位代理人生成个性化邀约名单和推荐话术，优先触达3个月内未联系的高价值客户</div></div><div class="plan-row"><div class="pr-icon">📊</div><div><strong>任务分配：</strong>8个营业部按高价值客户占比分配邀约配额，每位代理人每周至少邀约5位目标客户参加活动</div></div></div><div class="plan-section"><div class="ps-hd">📈 效果追踪与考核</div><div class="plan-row"><div class="pr-icon">✅</div><div><strong>追踪指标：</strong>邀约完成率、到场率、活动后48小时回访率、签单转化率、低温客户激活率<br><strong>追踪节奏：</strong>每场活动后3日内AI自动生成效果报告，每周五汇总周度活动数据<br><strong>考核标准：</strong>各部活动达成率纳入三好五星评估，连续2周未达标的部门自动触发预警</div></div></div></div></div>`},
     {d:400,h:`<div class="done-b" style="opacity:0;animation:fu .35s ease forwards">✅ 客户资源分析完成，活动策划方案已生成，方案已同步至各营业部经理工作台</div>`}
   ]);
 }
@@ -545,29 +461,37 @@ function r2(){
 }
 function r2s(){
   const c=$('c2');
-  if(sp>=2){var fm=$('floatMic');if(fm)fm.style.display='none';}
   if(sp===1){
     c.innerHTML=`<div class="blk"><div class="blk-t"><span class="ico">💬</span> AI助手对话</div><div class="chat" id="ch2a"></div></div>`;
-    const ch2=$('ch2a');
-    idleMic(ch2,'ch2a',[
-      {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我根据司庆季业务区客户资源中高价值客户分布和目标客户分布情况，制定面谈规划</div>`},
-      {d:1500,h:`<div class="ai-think" id="t2v"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①数据来源=司庆季客户资源 ②分析维度=高价值客户分布+目标客户分布 ③输出=面谈规划</div><div class="tl">▸ 正在调取业务区全量代理人数据，交叉匹配AB类中高温客户×目标客户名单与各代理人辖区客户资源…</div><div class="tl">▸ 按高价值客户拥有量、历史转化率、近期活动表现进行多维评分排序…</div><div class="tl">▸ 圈定完成：28位重点面谈人员——8位部经理（客户资源集中度高）、20名高绩优人员（转化能力强） → 按面谈优先级排序</div><div class="tl">▸ 另外筛选出50名主管，建议安排辅导专员进行面谈</div><div class="tl">▸ 正在为每位重点人员自动生成个性化面谈指引（谈目标、盘客户、定计划三模块）…</div><span class="cur"></span></div>`,tk:'t2v',tc:6},
-      {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>根据AB类客户的中高温及目标客户分布，已圈定28位重点人员面谈，其中有8位部经理、20位高绩优人员，可优先对他们开展面谈，以下是具体的面谈指引。另外还有50名主管，建议安排辅导专员进行面谈。<br><br>付彩芳部经理、崔向丽部经理……<br><br>请点击下方卡片查看每位代理人的面谈指引。</div>`},
+    rChat($('ch2a'),[
+      {d:300,h:`<div class="vi"><button class="mic rec">🎤</button><div class="vw"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div><div style="flex:1;font-size:13px;color:var(--text-primary);font-weight:500">正在录音…</div></div>`},
+      {d:2000,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我根据司庆季业务区客户资源中高价值客户分布和目标客户分布情况，制定面谈规划</div>`},
+      {d:1500,h:`<div class="ai-think" id="t2v"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①数据来源=司庆季客户资源 ②分析维度=高价值客户分布+目标客户分布 ③输出=面谈规划</div><div class="tl">▸ 正在调取业务区全量代理人数据，交叉匹配AB类中高温客户×目标客户名单与各代理人辖区客户资源…</div><div class="tl">▸ 按高价值客户拥有量、历史转化率、近期活动表现进行多维评分排序…</div><div class="tl">▸ 圈定完成：35位重点代理人——8位部经理（客户资源集中度高）、20名高绩优人员（转化能力强）、7名潜力代理人 → 按面谈优先级排序</div><div class="tl">▸ 正在为每位重点代理人自动生成个性化面谈指引（谈目标、盘客户、定计划三模块）…</div><span class="cur"></span></div>`,tk:'t2v',tc:5},
+      {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>根据AB类客户的中高温及目标客户分布，已圈定35位重点代理人，其中有8位部经理、20名高绩优人员，可优先对他们开展面谈。以下是具体的面谈指引：<br><br>付彩芳部经理、崔向丽部经理、潘慧高绩优……<br><br>请点击下方卡片查看每位代理人的面谈指引。</div>`},
       {d:400,h:`<div class="mt12"><button class="btn btn-p" onclick="sp=2;r2()">📋 查看面谈对象卡片 ➤</button></div>`}
     ]);
   }else if(sp===2){
     c.innerHTML=`
       <div class="blk">
-        <div class="blk-t"><span class="ico">👥</span> 面谈对象总览 <span style="font-size:12px;font-weight:400;color:var(--text-muted);margin-left:8px">共圈定28位重点面谈人员，点击卡片查看面谈指引</span></div>
+        <div class="blk-t"><span class="ico">👥</span> 面谈对象总览 <span style="font-size:12px;font-weight:400;color:var(--text-muted);margin-left:8px">共圈定35位重点代理人，点击卡片查看面谈指引</span></div>
         <div class="sec-label">👑 部经理 <span class="cnt">8人</span></div>
         <div class="agent-grid">${mgrData.map((d,i)=>mkMgrCard(d,i)).join('')}</div>
         <div class="sec-label">⭐ 高绩优人员 <span class="cnt">20人</span></div>
         <div class="agent-grid">${perfData.map((d,i)=>mkPerfCard(d,i)).join('')}</div>
-      </div>`;
+      </div>
+      <div id="guideArea"></div>`;
   }else if(sp===3){
-    // Full-page guide — render guide content directly into c
-    const g=window._lastGuide;
-    if(g) renderGuidePage(c, g.type, g.idx);
+    // show cards + last selected guide
+    c.innerHTML=`
+      <div class="blk">
+        <div class="blk-t"><span class="ico">👥</span> 面谈对象总览 <span style="font-size:12px;font-weight:400;color:var(--text-muted);margin-left:8px">点击卡片切换查看</span></div>
+        <div class="sec-label">👑 部经理 <span class="cnt">8人</span></div>
+        <div class="agent-grid">${mgrData.map((d,i)=>mkMgrCard(d,i)).join('')}</div>
+        <div class="sec-label">⭐ 高绩优人员 <span class="cnt">20人</span></div>
+        <div class="agent-grid">${perfData.map((d,i)=>mkPerfCard(d,i)).join('')}</div>
+      </div>
+      <div id="guideArea"></div>`;
+    if(window._lastGuide) showGuide(window._lastGuide.type, window._lastGuide.idx);
   }else if(sp===4){
     // 面谈档案
     const a=window._currentAgent;
@@ -587,20 +511,21 @@ function r2s(){
   }
 }
 
-// showGuide: called from card click in sp===2; stores state, navigates to sp===3
 function showGuide(type, idx){
   window._lastGuide={type,idx};
-  sp=3;
-  document.querySelectorAll('.sbtn').forEach((b,i)=>{b.classList.toggle('on',i===2);if(i<2)b.classList.add('ok')});
-  r2s();
-}
+  if(sp<3){sp=3;document.querySelectorAll('.sbtn').forEach((b,i)=>{b.classList.toggle('on',i===2);if(i<2)b.classList.add('ok')})}
+  // highlight active card
+  document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('active'));
+  const allCards=document.querySelectorAll('.agent-card');
+  const cardIdx=type==='mgr'?idx:8+idx;
+  if(allCards[cardIdx]) allCards[cardIdx].classList.add('active');
 
-// renderGuidePage: builds the full-page guide inside container el
-function renderGuidePage(el, type, idx){
   const d=type==='mgr'?mgrData[idx]:perfData[idx];
   const isMgr=type==='mgr';
   const role=isMgr?'部经理':'高绩优';
+  const ga=$('guideArea');
 
+  // Generate contextual guidance content
   const goalContent=isMgr?
     `<div class="ai-think" style="margin:10px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：基于${d.name}团队的客户资源和司庆季目标，设定具体可量化的面谈目标，让其明确努力方向</div></div>
      <div class="talk">"${d.name}经理，司庆季你团队的高价值客户有${d.hvc}人，其中目标客户${d.target}人。结合${d.temp}客户集中的特点，建议本月重点推进健康权益主题活动转化，目标触达率80%以上，争取转化${Math.round(d.target*0.35)}单以上。这个目标不算高，但需要你盯紧每天的执行落地。"</div>`:
@@ -629,45 +554,51 @@ function renderGuidePage(el, type, idx){
        <div class="tk" style="opacity:0;animation:fu .35s .3s ease forwards"><div class="tk-c">✓</div><div class="tk-b"><div class="tt">每日至少3个有效拜访</div><div class="tm">责任人：${d.name} ｜ 持续追踪</div></div></div>
      </div>`;
 
-  el.innerHTML=`
-    <div class="guide-panel" style="margin-top:0">
-      <div class="guide-header" style="display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div class="gh-name">📋 ${d.name} · ${role} · 面谈指引</div>
-          <div class="gh-sub">${d.dept} ｜ 高价值客户 ${d.hvc}人 ｜ ${d.temp}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:11px;color:var(--blue-500);font-weight:600;background:var(--blue-50);padding:4px 12px;border-radius:6px">${isMgr?'👑 部经理':'⭐ 高绩优'}</span>
-          <button class="btn" style="padding:7px 16px;background:var(--blue-50);color:var(--blue-600);border:1px solid var(--blue-200);font-size:12px" onclick="sp=2;r2()">← 返回名单</button>
-        </div>
+  ga.innerHTML=`
+    <div class="guide-panel">
+      <div class="guide-header">
+        <div><div class="gh-name">📋 ${d.name} · ${role} · 面谈指引</div><div class="gh-sub">${d.dept} ｜ 高价值客户 ${d.hvc}人 ｜ ${d.temp}</div></div>
+        <span style="font-size:11px;color:var(--blue-500);font-weight:600;background:var(--blue-50);padding:4px 12px;border-radius:6px">${isMgr?'👑 部经理':'⭐ 高绩优'}</span>
       </div>
-      <div class="guide-content" style="display:flex;flex-direction:column;gap:16px">
+      <div class="guide-tabs">
+        <button class="guide-tab on" onclick="switchGTab(this,0,'${type}',${idx})">🎯 谈目标</button>
+        <button class="guide-tab" onclick="switchGTab(this,1,'${type}',${idx})">📊 盘客户</button>
+        <button class="guide-tab" onclick="switchGTab(this,2,'${type}',${idx})">📝 定计划</button>
+      </div>
+      <div class="guide-content" id="gcontent">
         <div class="st" style="opacity:0;animation:fu .3s .1s ease forwards">
-          <div class="st-t">🎯 谈目标：明确方向与量化指标</div>
+          <div class="st-t">── 谈目标：明确方向与量化指标 ──</div>
           ${goalContent}
         </div>
-        <div class="st" style="opacity:0;animation:fu .3s .25s ease forwards">
-          <div class="st-t">📊 盘客户：梳理资源与优先级</div>
-          ${custContent}
-        </div>
-        <div class="st" style="opacity:0;animation:fu .3s .4s ease forwards">
-          <div class="st-t">📝 定计划：落实行动与追踪</div>
-          ${planContent}
-        </div>
       </div>
-      <div style="padding:16px 22px 18px;text-align:center">
+      <div style="padding:0 22px 18px;text-align:center">
         <button class="btn btn-gn" onclick="completeMeeting('${type}',${idx})">✅ 已完成与${d.name}的面谈</button>
       </div>
     </div>`;
-
+  
   // store for archive generation
   window._currentAgent={...d,type,idx,role:isMgr?'部经理':'高绩优',isMgr};
+
+  // store content for tab switching
+  window._guideContents=[
+    `<div class="st" style="opacity:0;animation:fu .3s .1s ease forwards"><div class="st-t">── 谈目标：明确方向与量化指标 ──</div>${goalContent}</div>`,
+    `<div class="st" style="opacity:0;animation:fu .3s .1s ease forwards"><div class="st-t">── 盘客户：梳理资源与优先级 ──</div>${custContent}</div>`,
+    `<div class="st" style="opacity:0;animation:fu .3s .1s ease forwards"><div class="st-t">── 定计划：落实行动与追踪 ──</div>${planContent}</div>`
+  ];
+
+  ga.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function switchGTab(el,idx){
+  document.querySelectorAll('.guide-tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  $('gcontent').innerHTML=window._guideContents[idx];
 }
 
 function completeMeeting(type,idx){
-  clr();
   sp=4;
-  r2();
+  document.querySelectorAll('.sbtn').forEach((b,i)=>{b.classList.toggle('on',i===3);if(i<3)b.classList.add('ok')});
+  r2s();
 }
 
 function renderArchive(){
@@ -753,15 +684,13 @@ function r3(){
 function r3s(){
   const c=$('c3');
   c.innerHTML=`<div class="blk"><div class="blk-t"><span class="ico">💬</span> AI助手对话</div><div class="chat" id="ch3a"></div></div>`;
-  const ch3=$('ch3a');
-  idleMic(ch3,'ch3a',[
-    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我分析8个营业部中1VN活动率，对第一个达成30%营业部制作贺报</div>`},
+  rChat($('ch3a'),[
+    {d:300,h:`<div class="vi"><button class="mic rec">🎤</button><div class="vw"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div><div style="flex:1;font-size:13px;color:var(--text-primary);font-weight:500">正在录音…</div></div>`},
+    {d:2000,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我分析8个营业部中1VN活动率，对第一个达成30%营业部制作贺报</div>`},
     {d:1500,h:`<div class="ai-think" id="t3a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①分析维度=1VN活动率 ②范围=8个营业部 ③触发条件=达成30% ④动作=制作贺报</div><div class="tl">▸ 正在调取8个营业部1VN活动率数据：朝阳部32%、瑞祥部25%、星辰部22%、明德部20%、启明部18%、天成部17%、越秀部15%、阳光部9%</div><div class="tl">▸ 数据排序完成：朝阳部1VN活动率32%，为首个突破30%达成线的营业部 → 符合触发条件</div><div class="tl">▸ 正在调用内容创作智能体，基于朝阳部核心数据自动生成贺报… 匹配模板、填充指标、渲染视觉效果…</div><span class="cur"></span></div>`,tk:'t3a',tc:4},
-    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已基于营业部经营数据为您自动分析并完成贺报制作。</div>`},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已为您分析数据并完成贺报制作。</div>`},
     {d:600,h:`<div id="posterWrap"><div class="poster-card" id="posterCard" style="background:linear-gradient(160deg,#f7a833 0%,#e8862c 30%,#d4522a 65%,#c0392b 100%);opacity:0;animation:fu .5s ease forwards"><div class="poster-bg-deco"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="ray" style="transform:rotate(30deg)"></div><div class="ray" style="transform:rotate(150deg)"></div><div class="ray" style="transform:rotate(-30deg)"></div><div class="ray" style="transform:rotate(-150deg)"></div></div><div class="poster-sparkles"><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div></div><div class="poster-ribbon">TOP 1</div><div class="poster-corner-tl"></div><div class="poster-corner-tr"></div><div class="poster-corner-bl"></div><div class="poster-corner-br"></div><div class="poster-inner"><div class="poster-logo-row"><div class="poster-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div><div class="poster-logo-text">平安DO · 贺报</div></div><div class="poster-title" id="pTitle">贺 报</div><div class="poster-trophy-wrap"><div class="poster-trophy-glow"></div><div class="poster-trophy" id="pTrophy">🏆</div></div><div class="poster-congrats">恭 喜</div><div class="poster-dept" id="pDept">朝阳营业部</div><div class="poster-stats-row"><div class="poster-stat-item"><div class="ps-val" id="pStatNum">32%</div><div class="ps-label" id="pStatLabel">1VN活动率</div></div><div class="poster-divider"></div><div class="poster-stat-item"><div class="ps-val">NO.1</div><div class="ps-label">全区排名</div></div></div><div class="poster-rank-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f7c948" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg><span style="color:#fde68a;font-size:13px;font-weight:700" id="pRank">全区排名第一</span></div><div class="poster-date">2026年3月</div><div class="poster-footer-brand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg><span>平安DO.万能营销助手</span></div></div></div></div>`},
-    {d:400,h:`<div class="poster-actions" id="posterActions"><button class="btn-outline" onclick="refreshPoster()">🔄 换一换</button><button class="btn btn-gn" id="confirmPosterBtn" onclick="downloadPoster()">⬇ 下载</button></div><div id="posterDone"></div>`},
-    {d:600,h:`<div class="bub ai" style="margin-top:14px"><div class="sn">🤖 AI助手 · 下一步推荐</div><div style="margin-top:6px;line-height:1.8;font-size:13px">您是否需要我每周执行一次？即每周自动检索各营业部最新经营数据，对达成目标的营业部自动生成贺报并推送给您确认。</div></div>`},
-    {d:400,h:`<div class="mt8" id="weeklyBtnWrap"><button class="btn btn-p" onclick="confirmWeekly()">👍 好的</button></div><div id="weeklyDone"></div>`}
+    {d:400,h:`<div class="poster-actions" id="posterActions"><button class="btn-outline" onclick="refreshPoster()">🔄 换一换</button><button class="btn btn-gn" id="confirmPosterBtn" onclick="downloadPoster()">⬇ 下载</button></div><div id="posterDone"></div>`}
   ]);
 }
 
@@ -789,26 +718,6 @@ function downloadPoster(){
   $('posterDone').innerHTML=`<div class="done-b mt12" style="opacity:0;animation:fu .35s ease forwards">✅ 下载完成</div>`;
   setTimeout(()=>{$('confirmPosterBtn').disabled=false;},1500);
 }
-function confirmWeekly(){
-  const btn=$('weeklyBtnWrap');
-  if(btn){btn.style.opacity='.4';btn.style.pointerEvents='none';}
-  const done=$('weeklyDone');
-  if(done){
-    done.innerHTML=`
-      <div class="bub ai" style="margin-top:14px;opacity:0;animation:bi .3s ease forwards">
-        <div class="sn">🤖 AI助手</div>
-        <div style="margin-top:6px;line-height:1.9;font-size:13px">
-          已为您开启<strong>「贺报自动生成」周任务</strong>，具体规则如下：<br><br>
-          📅 <strong>执行频率：</strong>每周一上午9:00自动执行<br>
-          📊 <strong>数据范围：</strong>自动检索8个营业部最新经营数据（1VN活动率、NBEV达成率等核心指标）<br>
-          🎯 <strong>触发条件：</strong>营业部指标首次达成目标线时，自动生成对应贺报<br>
-          👤 <strong>审核流程：</strong>贺报生成后将推送至您的工作台，经您确认后发布<br><br>
-          您可以随时对我说"关闭贺报周任务"来取消。
-        </div>
-      </div>
-      <div class="done-b mt12" style="opacity:0;animation:fu .35s .3s ease forwards">✅ 周期任务已创建，下次执行时间：下周一 09:00，届时将自动推送至您的工作台</div>`;
-  }
-}
 
 // ====== SCENE 4: 案例挖掘 ======
 function r4(){
@@ -822,15 +731,25 @@ function r4s(){
   const c=$('c4');
   c.innerHTML=`<div class="blk"><div class="blk-t"><span class="ico">💬</span> AI助手对话</div><div class="chat" id="ch4"></div></div>`;
   const ch=$('ch4');
-  idleMic(ch,'ch4',[
-    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>我想做一些榜样案例，请帮我找1VN活动率排名第一的营业部、邀约客户人数前三名的代理人</div>`},
+  const items=[
+    // 1. voice input
+    {d:300,h:`<div class="vi"><button class="mic rec">🎤</button><div class="vw"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div><div style="flex:1;font-size:13px;color:var(--text-primary);font-weight:500">正在录音…</div></div>`},
+    // 2. user message
+    {d:2000,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>我想做一些榜样案例，请帮我找1VN活动率排名第一的营业部、邀约客户人数前三名的代理人</div>`},
+    // 3. AI thinking
     {d:1500,h:`<div class="ai-think" id="t4a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①目标=榜样案例 ②对象A=1VN活动率排名第一的营业部 ③对象B=邀约客户人数前三名的代理人</div><div class="tl">▸ 正在调取全区8个营业部1VN活动率排名数据和全体代理人邀约客户人数…</div><div class="tl">▸ 数据匹配完成：朝阳部崔向丽经理（1VN活动率32%，全区第一）；王五、潘慧、李明辉（4月1VN参与客户人数前三名）</div><div class="tl">▸ 自动调用案例挖掘智能体，建议对以上4人进行深度访谈，收集案例素材…</div><span class="cur"></span></div>`,tk:'t4a',tc:4},
+    // 4. AI output
     {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，本月已为您分析数据，建议对朝阳部崔向丽经理（1VN活动率第一）、王五等3人（4月1VN参与客户人数前三）进一步访谈并收集详细信息，可点击或上传录音帮您归纳榜样案例。</div>`},
+    // 5. file upload
     {d:1200,h:`<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:10px;margin-bottom:4px"><span style="font-size:24px">📁</span><div><div style="font-size:13px;font-weight:600;color:var(--text-primary)">崔向丽_访谈录音.mp3</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">已上传 · 12分38秒 · 8.4MB</div></div><div style="margin-left:auto;color:var(--green);font-size:12px;font-weight:600">✅ 上传成功</div></div><div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:10px;margin-bottom:8px"><span style="font-size:24px">📁</span><div><div style="font-size:13px;font-weight:600;color:var(--text-primary)">王五_访谈录音.mp3</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">已上传 · 8分15秒 · 5.6MB</div></div><div style="margin-left:auto;color:var(--green);font-size:12px;font-weight:600">✅ 上传成功</div></div>`},
+    // 6. AI analyzing recording
     {d:1200,h:`<div class="ai-think" id="t4b"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 录音文件已接收，正在对2份录音执行语音识别与内容提取…</div><div class="tl">▸ 自动识别录音关键信息：①客户筛选与邀约策略 ②1VN活动组织流程 ③活动后回访转化方法 ④团队协作经验</div><div class="tl">▸ 正在与朝阳部业绩数据交叉验证案例真实性… 验证通过 ✓</div><div class="tl">▸ 分析完成，案例素材提取就绪，可根据用户选择生成长图或视频形式的传播内容…</div><span class="cur"></span></div>`,tk:'t4b',tc:4},
+    // 7. AI asks format
     {d:600,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>已根据您上传的录音分析并制作案例，请您确认以视频或长图的方式生成传播内容</div>`},
+    // 8. format choice buttons
     {d:400,h:`<div class="fmt-choice" id="fmtChoice"><button class="fmt-btn" onclick="pickFmt('long')"><div class="fb-icon">🖼️</div><div class="fb-label">长图</div><div class="fb-desc">适合微信群传播</div></button><button class="fmt-btn" onclick="pickFmt('video')"><div class="fb-icon">🎬</div><div class="fb-label">视频</div><div class="fb-desc">适合朋友圈/短视频</div></button></div>`}
-  ]);
+  ];
+  rChat(ch,items);
 }
 
 let caseImgVer=0;
@@ -969,9 +888,9 @@ function r6(){
 function r6s(){
   const c=$('c6');
   c.innerHTML=`<div class="blk"><div class="blk-t"><span class="ico">💬</span> AI助手对话</div><div class="chat" id="ch6"></div></div>`;
-  const ch6=$('ch6');
-  idleMic(ch6,'ch6',[
-    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我对1VN活动率达成后2名的部经理组织主管检视会</div>`},
+  rChat($('ch6'),[
+    {d:300,h:`<div class="vi"><button class="mic rec">🎤</button><div class="vw"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div><div style="flex:1;font-size:13px;color:var(--text-primary);font-weight:500">正在录音…</div></div>`},
+    {d:2000,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我对1VN活动率达成后2名的部经理组织主管检视会</div>`},
     {d:1500,h:`<div class="ai-think" id="t6a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①筛选维度=1VN活动率 ②对象=达成后2名的部经理 ③动作=组织主管检视会</div><div class="tl">▸ 正在调取8个营业部1VN活动率排名：朝阳部32%、瑞祥部25%、星辰部22%、明德部20%、启明部18%、天成部17%、越秀部15%、阳光部9%</div><div class="tl">▸ 排名末2位确认：越秀部（15%）付彩芳经理、阳光部（9%）张宁经理 → 需组织主管检视会</div><div class="tl">▸ 正在检索相关人员日历空闲时段… 匹配到本周四下午14:00-15:30全员可参会</div><div class="tl">▸ 正在自动生成主管检视会PPT：汇总8部排名数据、标注优秀案例、生成工作要求… PPT渲染完成</div><div class="tl">▸ 已为阳光部、越秀部生成主管检视会邀约，待用户确认后发送</div><span class="cur"></span></div>`,tk:'t6a',tc:6},
     {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>已为您分析数据，并为阳光部、越秀部生成主管检视会邀约，以下是我为您生成的PPT，请您确认：</div>`},
     {d:600,h:`<div class="ppt-deck" style="opacity:0;animation:fu .5s ease forwards"><div class="ppt-deck-head"><div class="pdh-title">📊 主管检视会议.pptx</div><div class="pdh-actions"><button class="pdh-btn" onclick="alert('PPT预览功能')">👁 预览</button><button class="pdh-btn" onclick="alert('PPT下载中...')">⬇ 下载</button><button class="pdh-btn" onclick="alert('转发到微信群')">↗ 转发</button></div></div><div class="ppt-slides"><div class="ppt-slide" style="animation-delay:.1s"><div class="ps-num">P1</div><div class="ps-body"><div class="ps-title">业务区8个部1VN活动邀约情况排名</div><div class="ps-desc">朝阳部32% · 瑞祥部25% · 星辰部22% · 明德部20% · 启明部18% · 天成部17% · 越秀部15% · 阳光部9%，含各部环比趋势与达成率对比图</div></div></div><div class="ppt-slide" style="animation-delay:.2s"><div class="ps-num">P2</div><div class="ps-body"><div class="ps-title">1VN活动邀约详情分析</div><div class="ps-desc">各营业部邀约客户数、到场率、活动场次、人均参与次数等核心指标明细，标注末位部门差距与改善空间</div></div></div><div class="ppt-slide" style="animation-delay:.3s"><div class="ps-num">P3</div><div class="ps-body"><div class="ps-title">优秀案例展示</div><div class="ps-desc">朝阳部崔向丽经理1VN活动率32%达成经验复盘：精准邀约策略、活动组织流程、48小时回访转化方法</div></div></div><div class="ppt-slide" style="animation-delay:.4s"><div class="ps-num">P4</div><div class="ps-body"><div class="ps-title">末位部门问题诊断</div><div class="ps-desc">阳光部（9%）：出勤率低+客户梳理不足；越秀部（15%）：活动频次不够+邀约转化低，逐一归因分析</div></div></div><div class="ppt-slide" style="animation-delay:.5s"><div class="ps-num">P5</div><div class="ps-body"><div class="ps-title">下一步工作要求</div><div class="ps-desc">各部整改动作清单、责任人、截止日期、检查标准，含阳光部和越秀部专项提升计划与周度追踪节点</div></div></div></div></div>`},
@@ -987,14 +906,13 @@ function confirmS6(){
 }
 
 // ====== HELPERS ======
-// rChat: used by non-voice continuations (e.g. pickFmt scene 5 follow-up items)
-function rChat(el, items){
+function rChat(el,items){
   let tot=0;
   items.forEach(it=>{
     tot+=it.d;
     const t=setTimeout(()=>{
       el.insertAdjacentHTML('beforeend',it.h);
-      if(it.tk) anim(it.tk,it.tc);
+      if(it.tk)anim(it.tk,it.tc);
     },tot);
     T.push(t);
   });
