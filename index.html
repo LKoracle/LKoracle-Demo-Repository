@@ -347,9 +347,7 @@ body{font-family:'Noto Sans SC','DM Sans',-apple-system,sans-serif;background:va
       <button class="tab" onclick="go(7)">配套活动计划</button>
       <button class="tab" onclick="go(2)">队伍圈定面谈</button>
       <button class="tab" onclick="go(3)">业绩追踪</button>
-      <button class="tab" onclick="go(4)">贺报</button>
-      <button class="tab" onclick="go(5)">案例</button>
-      <button class="tab" onclick="go(6)">会议材料</button>
+      <button class="tab" onclick="go(8)">表彰/检视</button>
     </div>
     <div id="C"></div>
   </div>
@@ -385,8 +383,8 @@ function mkS(labels,active){
   return `<div class="steps">${labels.map((s,i)=>`<button class="sbtn ${i+1===active?'on':''} ${i+1<active?'ok':''}" onclick="jmp(${i+1})">${s}</button>`).join('')}</div>`;
 }
 function jmp(n){clr();sp=n;render()}
-function go(n){clr();csid();sc=n;sp=1;const tabOrder=[1,7,2,3,4,5,6];document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',tabOrder[i]===n));$('nf').classList.add('hid');render()}
-function render(){switch(sc){case 1:r1();break;case 7:r7();break;case 2:r2();break;case 3:r5();break;case 4:r3();break;case 5:r4();break;case 6:r6();break}}
+function go(n){clr();csid();sc=n;sp=1;const tabOrder=[1,7,2,3,8];document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',tabOrder[i]===n));$('nf').classList.add('hid');render()}
+function render(){switch(sc){case 1:r1();break;case 7:r7();break;case 2:r2();break;case 3:r5();break;case 8:rCombo();break}}
 
 // ====== VOICE IDLE HELPER ======
 // Float mic bar: 3 states — idle (clickable) | rec (red pulse) | wait (grey, non-clickable)
@@ -1005,7 +1003,7 @@ function pickFmt(fmt){
   fc.querySelectorAll('.fmt-btn')[idx].style.borderColor='var(--blue-500)';
   fc.querySelectorAll('.fmt-btn')[idx].style.background='var(--blue-50)';
 
-  const ch=$('ch4');
+  const ch=$('chCombo')||$('ch4');
   // user reply
   const fmtLabel=fmt==='long'?'长图':'视频';
   const items=[
@@ -1049,6 +1047,59 @@ function downloadCase4(){
   setTimeout(()=>{$('caseConfirmBtn').disabled=false;},1500);
 }
 
+// ====== SCENE 8 (COMBINED): 表彰/检视 ======
+function rCombo(){
+  $('C').innerHTML=`
+    <div class="scene-t">表彰/检视</div>
+    <div class="scene-s">语音指令 → AI分析 → 贺报 · 案例 · 会议材料 <span class="atag">内容创作智能体</span></div>
+    <div class="blk"><div class="blk-t"><span class="ico">💬</span> AI助手对话</div><div class="chat" id="chCombo"></div></div>`;
+  const ch=$('chCombo');
+  _comboRound1(ch);
+}
+
+// ── Round 1: 贺报 ──────────────────────────────────────────────────────────
+function _comboRound1(ch){
+  idleMic(ch,'combo1',[
+    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我分析8个营业部中1VN活动率，对第一个达成30%营业部制作贺报</div>`},
+    {d:1500,h:`<div class="ai-think" id="t3a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①分析维度=1VN活动率 ②范围=8个营业部 ③触发条件=达成30% ④动作=制作贺报</div><div class="tl">▸ 正在调取8个营业部1VN活动率数据：朝阳部32%、瑞祥部25%、星辰部22%、明德部20%、启明部18%、天成部17%、越秀部15%、阳光部9%</div><div class="tl">▸ 数据排序完成：朝阳部1VN活动率32%，为首个突破30%达成线的营业部 → 符合触发条件</div><div class="tl">▸ 正在调用内容创作智能体，基于朝阳部核心数据自动生成贺报… 匹配模板、填充指标、渲染视觉效果…</div><span class="cur"></span></div>`,tk:'t3a',tc:4},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已为您分析数据并完成贺报制作。</div>`},
+    {d:600,h:`<div id="posterWrap"><div class="poster-card" id="posterCard" style="background:linear-gradient(160deg,#f7a833 0%,#e8862c 30%,#d4522a 65%,#c0392b 100%);opacity:0;animation:fu .5s ease forwards"><div class="poster-bg-deco"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="ray" style="transform:rotate(30deg)"></div><div class="ray" style="transform:rotate(150deg)"></div><div class="ray" style="transform:rotate(-30deg)"></div><div class="ray" style="transform:rotate(-150deg)"></div></div><div class="poster-sparkles"><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div></div><div class="poster-ribbon">TOP 1</div><div class="poster-corner-tl"></div><div class="poster-corner-tr"></div><div class="poster-corner-bl"></div><div class="poster-corner-br"></div><div class="poster-inner"><div class="poster-logo-row"><div class="poster-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div><div class="poster-logo-text">平安DO · 贺报</div></div><div class="poster-title" id="pTitle">贺 报</div><div class="poster-trophy-wrap"><div class="poster-trophy-glow"></div><div class="poster-trophy" id="pTrophy">🏆</div></div><div class="poster-congrats">恭 喜</div><div class="poster-dept" id="pDept">朝阳营业部</div><div class="poster-stats-row"><div class="poster-stat-item"><div class="ps-val" id="pStatNum">32%</div><div class="ps-label" id="pStatLabel">1VN活动率</div></div><div class="poster-divider"></div><div class="poster-stat-item"><div class="ps-val">NO.1</div><div class="ps-label">全区排名</div></div></div><div class="poster-rank-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f7c948" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg><span style="color:#fde68a;font-size:13px;font-weight:700" id="pRank">全区排名第一</span></div><div class="poster-date">2026年3月</div><div class="poster-footer-brand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg><span>平安DO.万能营销助手</span></div></div></div></div>`},
+    {d:400,h:`<div class="poster-actions" id="posterActions"><button class="btn-outline" onclick="refreshPoster()">🔄 换一换</button><button class="btn btn-gn" id="confirmPosterBtn" onclick="downloadPoster()">⬇ 下载</button></div><div id="posterDone"></div>`}
+  ]);
+  // After贺报 done → chain to round 2 (案例)
+  window['_viItems_combo1'].chatItems.push({d:600,h:'',_afterRender:()=>_comboRound2(ch)});
+}
+
+// ── Round 2: 案例 ──────────────────────────────────────────────────────────
+function _comboRound2(ch){
+  idleMic(ch,'combo2',[
+    {d:0,h:`<div style="border-top:1px dashed var(--border);margin:16px 0 8px;display:flex;align-items:center;gap:8px"><span style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.5px;white-space:nowrap">📌 案例挖掘</span></div>`},
+    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>我想做一些榜样案例，请帮我找1VN活动率排名第一的营业部、邀约客户人数前三名的代理人</div>`},
+    {d:1500,h:`<div class="ai-think" id="t4a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①目标=榜样案例 ②对象A=1VN活动率排名第一的营业部 ③对象B=邀约客户人数前三名的代理人</div><div class="tl">▸ 正在调取全区8个营业部1VN活动率排名数据和全体代理人邀约客户人数…</div><div class="tl">▸ 数据匹配完成：朝阳部崔向丽经理（1VN活动率32%，全区第一）；王五、潘慧、李明辉（4月1VN参与客户人数前三名）</div><div class="tl">▸ 自动调用案例挖掘智能体，建议对以上4人进行深度访谈，收集案例素材…</div><span class="cur"></span></div>`,tk:'t4a',tc:4},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，本月已为您分析数据，建议对朝阳部崔向丽经理（1VN活动率第一）、王五等3人（4月1VN参与客户人数前三）进一步访谈并收集详细信息，可点击或上传录音帮您归纳榜样案例。</div>`},
+    {d:1200,h:`<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:10px;margin-bottom:4px"><span style="font-size:24px">📁</span><div><div style="font-size:13px;font-weight:600;color:var(--text-primary)">崔向丽_访谈录音.mp3</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">已上传 · 12分38秒 · 8.4MB</div></div><div style="margin-left:auto;color:var(--green);font-size:12px;font-weight:600">✅ 上传成功</div></div><div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:10px;margin-bottom:8px"><span style="font-size:24px">📁</span><div><div style="font-size:13px;font-weight:600;color:var(--text-primary)">王五_访谈录音.mp3</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">已上传 · 8分15秒 · 5.6MB</div></div><div style="margin-left:auto;color:var(--green);font-size:12px;font-weight:600">✅ 上传成功</div></div>`},
+    {d:1200,h:`<div class="ai-think" id="t4b"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 录音文件已接收，正在对2份录音执行语音识别与内容提取…</div><div class="tl">▸ 自动识别录音关键信息：①客户筛选与邀约策略 ②1VN活动组织流程 ③活动后回访转化方法 ④团队协作经验</div><div class="tl">▸ 正在与朝阳部业绩数据交叉验证案例真实性… 验证通过 ✓</div><div class="tl">▸ 分析完成，案例素材提取就绪，可根据用户选择生成长图或视频形式的传播内容…</div><span class="cur"></span></div>`,tk:'t4b',tc:4},
+    {d:600,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>已根据您上传的录音分析并制作案例，请您确认以视频或长图的方式生成传播内容</div>`},
+    {d:400,h:`<div class="fmt-choice" id="fmtChoice"><button class="fmt-btn" onclick="pickFmt('long')"><div class="fb-icon">🖼️</div><div class="fb-label">长图</div><div class="fb-desc">适合微信群传播</div></button><button class="fmt-btn" onclick="pickFmt('video')"><div class="fb-icon">🎬</div><div class="fb-label">视频</div><div class="fb-desc">适合朋友圈/短视频</div></button></div>`}
+  ]);
+  // After案例 done → chain to round 3 (会议材料)
+  window['_viItems_combo2'].chatItems.push({d:800,h:'',_afterRender:()=>_comboRound3(ch)});
+}
+
+// ── Round 3: 会议材料 ───────────────────────────────────────────────────────
+function _comboRound3(ch){
+  idleMic(ch,'combo3',[
+    {d:0,h:`<div style="border-top:1px dashed var(--border);margin:16px 0 8px;display:flex;align-items:center;gap:8px"><span style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.5px;white-space:nowrap">📌 会议材料</span></div>`},
+    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我对1VN活动率达成后2名的部经理组织主管检视会</div>`},
+    {d:1500,h:`<div class="ai-think" id="t6a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①筛选维度=1VN活动率 ②对象=达成后2名的部经理 ③动作=组织主管检视会</div><div class="tl">▸ 正在调取8个营业部1VN活动率排名：朝阳部32%、瑞祥部25%、星辰部22%、明德部20%、启明部18%、天成部17%、越秀部15%、阳光部9%</div><div class="tl">▸ 排名末2位确认：越秀部（15%）付彩芳经理、阳光部（9%）张宁经理 → 需组织主管检视会</div><div class="tl">▸ 正在检索相关人员日历空闲时段… 匹配到本周四下午14:00-15:30全员可参会</div><div class="tl">▸ 正在自动生成主管检视会PPT：汇总8部排名数据、标注优秀案例、生成工作要求… PPT渲染完成</div><div class="tl">▸ 已为阳光部、越秀部生成主管检视会邀约，待用户确认后发送</div><span class="cur"></span></div>`,tk:'t6a',tc:6},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>已为您分析数据，并为阳光部、越秀部生成主管检视会邀约，以下是我为您生成的PPT，请您确认：</div>`},
+    {d:600,h:`<div class="ppt-deck" style="opacity:0;animation:fu .5s ease forwards"><div class="ppt-deck-head"><div class="pdh-title">📊 主管检视会议.pptx</div><div class="pdh-actions"><button class="pdh-btn" onclick="alert('PPT预览功能')">👁 预览</button><button class="pdh-btn" onclick="alert('PPT下载中...')">⬇ 下载</button><button class="pdh-btn" onclick="alert('转发到微信群')">↗ 转发</button></div></div><div class="ppt-slides"><div class="ppt-slide" style="animation-delay:.1s"><div class="ps-num">P1</div><div class="ps-body"><div class="ps-title">业务区8个部1VN活动邀约情况排名</div><div class="ps-desc">朝阳部32% · 瑞祥部25% · 星辰部22% · 明德部20% · 启明部18% · 天成部17% · 越秀部15% · 阳光部9%，含各部环比趋势与达成率对比图</div></div></div><div class="ppt-slide" style="animation-delay:.2s"><div class="ps-num">P2</div><div class="ps-body"><div class="ps-title">1VN活动邀约详情分析</div><div class="ps-desc">各营业部邀约客户数、到场率、活动场次、人均参与次数等核心指标明细，标注末位部门差距与改善空间</div></div></div><div class="ppt-slide" style="animation-delay:.3s"><div class="ps-num">P3</div><div class="ps-body"><div class="ps-title">优秀案例展示</div><div class="ps-desc">朝阳部崔向丽经理1VN活动率32%达成经验复盘：精准邀约策略、活动组织流程、48小时回访转化方法</div></div></div><div class="ppt-slide" style="animation-delay:.4s"><div class="ps-num">P4</div><div class="ps-body"><div class="ps-title">末位部门问题诊断</div><div class="ps-desc">阳光部（9%）：出勤率低+客户梳理不足；越秀部（15%）：活动频次不够+邀约转化低，逐一归因分析</div></div></div><div class="ppt-slide" style="animation-delay:.5s"><div class="ps-num">P5</div><div class="ps-body"><div class="ps-title">下一步工作要求</div><div class="ps-desc">各部整改动作清单、责任人、截止日期、检查标准，含阳光部和越秀部专项提升计划与周度追踪节点</div></div></div></div></div>`},
+    {d:800,h:`<div class="meeting-invite" style="animation-delay:.1s"><div class="mi-head"><div class="mi-icon">📅</div><div><div class="mi-title">主管检视会 · 会议邀约</div><div class="mi-sub">AI已自动匹配全员空闲时段</div></div></div><div class="mi-rows"><div class="mi-row"><div class="mir-label">会议主题</div><div class="mir-val">1VN活动率末位部门主管检视会</div></div><div class="mi-row"><div class="mir-label">会议时间</div><div class="mir-val"><strong>本周四 14:00 - 15:30</strong></div></div><div class="mi-row"><div class="mir-label">参会人员</div><div class="mir-val">赵虎（主持）、张宁（阳光部经理）、付彩芳（越秀部经理）及相关主管</div></div><div class="mi-row"><div class="mir-label">会议地点</div><div class="mir-val">营业区3楼会议室A</div></div><div class="mi-row"><div class="mir-label">会议附件</div><div class="mir-val">📊 主管检视会议.pptx（已自动附加）</div></div></div></div>`},
+    {d:400,h:`<div class="poster-actions" id="s6Actions"><button class="btn btn-gn" id="s6ConfirmBtn" onclick="confirmS6()">✅ 确认</button></div><div id="s6Done"></div>`}
+  ]);
+}
+
+
 // ====== SCENE 5: 进度追踪闭环 (原场景四) ======
 function r5(){
   $('C').innerHTML=`
@@ -1059,9 +1110,20 @@ function r5(){
 }
 function r5s(){
   const c=$('c5');
-  // KPI cards — aligned with new AI dialogue
-  c.innerHTML=`
-    <div class="kpi-grid">
+  // Show idle mic first, then on click show full tracking content
+  c.innerHTML=`<div class="blk"><div class="blk-t"><span class="ico">💬</span> AI助手对话</div><div class="chat" id="ch5"></div></div>`;
+  const ch5=$('ch5');
+  idleMic(ch5,'ch5r1',[
+    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我分析一下本月业务区整体业绩进度情况</div>`},
+    {d:1500,h:`<div class="ai-think" id="t5think"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：追踪本月营业区整体业绩进度，多维诊断异常</div><div class="tl">▸ 调取本月NBEV数据：当日新增10万、月累计达成200万/目标300万，进度略低于时间进度；全省50个营业区排名第35，距前20名差距30万…</div><div class="tl">▸ 队伍角度拆解：金钻以上人力达成目标 ✓；钻石人力距目标有差距，识别近达钻人员名单…</div><div class="tl">▸ 产品角度拆解：金越系列活动率20%，目标30%，差距明显；访量拆解：整体访量2500人低于进度，1V1正常，1VN偏低，部课场次未达预期…</div><div class="tl">▸ 部门异常定位：阳光部1VN访量40人、活动率&lt;10%，明显落后；根因=出勤率低+部课活动组织少，生成3条提升建议…</div><span class="cur"></span></div>`,tk:'t5think',tc:5},
+    {d:500,h:'<div id="s5kpi"></div>',_kpi:true}
+  ]);
+  window['_viItems_ch5r1'].chatItems.push({d:0,h:'',_afterRender:()=>_renderTrackContent()});
+}
+function _renderTrackContent(){
+  const kpiEl=$('s5kpi');
+  if(kpiEl) kpiEl.outerHTML=`
+    <div class="kpi-grid" style="margin-top:8px">
       <div class="kpi"><div class="kpi-label">本月NBEV · 当日新增</div><div class="kpi-val">10<span>万</span></div><div class="pbar"><div class="pfill" style="--w:67%"></div></div><div class="kpi-sub" style="color:var(--orange)">⚠ 进度略低于时间进度</div></div>
       <div class="kpi"><div class="kpi-label">本月NBEV · 月达成</div><div class="kpi-val">200<span>万</span></div><div class="kpi-sub">目标300万 · 还差<strong style="color:var(--orange)">100万</strong></div></div>
       <div class="kpi"><div class="kpi-label">全省营业区排名</div><div class="kpi-val">35<span style="font-size:14px">/ 50</span></div><div class="kpi-sub" style="color:var(--orange)">距前20名差距 <strong>30万</strong></div></div>
@@ -1073,50 +1135,45 @@ function r5s(){
       <div class="kpi" style="border-left:3px solid var(--red)"><div class="kpi-label">阳光部 1VN访量</div><div class="kpi-val" style="color:var(--red)">40<span style="font-size:14px">人</span></div><div class="kpi-sub" style="color:var(--red)">⚠ 活动率 &lt;10%</div></div>
     </div>
     <div id="s5chat"></div>`;
-  const t1=setTimeout(()=>{
-    const chat=$('s5chat');
-    chat.innerHTML=`<div class="blk" style="border-left:3px solid var(--orange);opacity:0;animation:fu .4s ease forwards"><div class="blk-t" style="color:var(--orange)">🔔 AI主动预警提醒</div><div class="ai-think" id="t5p"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 自动追踪营业区本月NBEV进度：月达成200万/目标300万，当日新增10万，进度略低于时间进度，全省50个营业区中排名第35，距前20名差距30万…</div><div class="tl">▸ 队伍角度拆解：金钻以上人力已达成目标 ✓；钻石人力距目标仍有差距，识别出近达钻人员名单，可重点追踪…</div><div class="tl">▸ 产品角度拆解：金越系列产品活动率20%，目标30%，差距明显，需加大下周营业部课活动推动力度…</div><div class="tl">▸ 客户/访量角度拆解：整体访量2500人低于预测进度；1V1访量2000人进度正常；1VN访量500人进度偏低，下钻分析为部课活动场次未达预期…</div><div class="tl">▸ 部门异常定位：阳光部1VN访量40人、活动率&lt;10%，明显落后。根因下钻：出勤率低+部课活动组织少，生成3条针对性提升建议…</div><span class="cur"></span></div><div id="s5alert" class="hid"></div></div>`;
-    anim('t5p',5,()=>{
-      const t2=setTimeout(()=>{
-        $('s5alert').classList.remove('hid');
-        $('s5alert').innerHTML=`
-          <div style="padding:16px 0 0;opacity:0;animation:fu .4s ease forwards">
-            <div class="bub ai" style="opacity:1;max-width:100%;align-self:stretch">
-              <div class="sn">🤖 AI助手 · 主动提醒</div>
-              <div style="margin-top:8px;line-height:1.9;font-size:13px">
-                赵经理，本月NBEV当日新增10万、全月达成200万、进度略低于时间进度，在全省所有50个营业区中排名第35名，距离前20名差距30万，加油哦！<br><br>
-                具体分析，<strong>从队伍角度</strong>，金钻以上人力达成目标，但钻石人力还有差距，建议对达钻差距较小人员进行追踪；<br><br>
-                <strong>从产品角度</strong>，金越系列产品活动率达成20%，距离目标还有较大差距，建议加大下周营业部课活动推动力度；<br><br>
-                <strong>从客户角度</strong>，区整体访量2500人，低于月预测访量达成时间进度。其中，整体1V1访量2000人、进度正常；1VN访量500人、进度偏低，经分析部课活动场次未达到预期，建议加强对1VN弱体营业部检视推动。<br><br>
-                分部门看，<strong style="color:var(--red)">阳光部1VN访量40人、活动率小于10%，达成进度明显落后时间进度</strong>。主因为出勤率低、部课活动组织少，建议您通过以下几点，提升阳光部指标：
-              </div>
-            </div>
-            <div style="margin-top:12px">
-              <div class="st" style="opacity:0;animation:fu .35s .15s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
-                <div class="st-t">建议一：摸底未参会人员，提升早会出勤质量</div>
-                <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：阳光部出勤率低是根本问题，需摸清每个人缺席原因，有针对性地提升早会质量和吸引力，把人拉回来</div></div>
-                <div class="talk">"对阳光部未参会人员情况进行摸底，搞清楚每个人缺席的具体原因，针对性改善早会内容和形式，让大家觉得来了有收获、有动力。"</div>
-              </div>
-              <div class="st" style="opacity:0;animation:fu .35s .3s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
-                <div class="st-t">建议二：加强部课活动组织，推动1VN客户梳理</div>
-                <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：1VN访量低的直接原因是部课活动场次不足，需从活动组织和客户梳理两端同步发力，快速补齐访量缺口</div></div>
-                <div class="talk">"要求付彩芳本周内补足部课活动场次，同时推动每位属员梳理本月参加活动的高价值客户名单，确保1VN邀约有名单、有动作、有跟进。"</div>
-              </div>
-              <div class="st" style="opacity:0;animation:fu .35s .45s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
-                <div class="st-t">建议三：安排朝阳部崔向丽带队进行1VN经验输出</div>
-                <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：借朝阳部1VN标杆力量打开阳光部的实战信心，用经验分享+现场陪跑方式快速带动部课活动和邀约行动</div></div>
-                <div class="talk">"安排1VN达成第一的朝阳部经理崔向丽带主管入场，对阳光部做一次1VN活动组织实战分享，并监督制定本周活动计划并追踪落地执行。"</div>
-              </div>
-            </div>
-            <div class="done-b mt12" style="opacity:0;animation:fu .35s .6s ease forwards">✅ 预警诊断已完成，提升建议已生成并推送至付彩芳工作台，跨部协同任务已发送至崔向丽</div>
-          </div>`;
-      },300);
-      T.push(t2);
-    });
-  },1200);
-  T.push(t1);
+  // then show AI chat alert
+  const chat=$('s5chat');
+  if(!chat) return;
+  chat.innerHTML=`<div class="blk" style="border-left:3px solid var(--orange);opacity:0;animation:fu .4s ease forwards"><div class="blk-t" style="color:var(--orange)">🔔 AI分析结果</div><div id="s5alert" class="hid"></div></div>`;
+  setTimeout(()=>{
+    $('s5alert').classList.remove('hid');
+    $('s5alert').innerHTML=`
+      <div style="padding:8px 0 0;opacity:0;animation:fu .4s ease forwards">
+        <div class="bub ai" style="opacity:1;max-width:100%;align-self:stretch">
+          <div class="sn">🤖 AI助手 · 主动提醒</div>
+          <div style="margin-top:8px;line-height:1.9;font-size:13px">
+            赵经理，本月NBEV当日新增10万、全月达成200万、进度略低于时间进度，在全省所有50个营业区中排名第35名，距离前20名差距30万，加油哦！<br><br>
+            具体分析，<strong>从队伍角度</strong>，金钻以上人力达成目标，但钻石人力还有差距，建议对达钻差距较小人员进行追踪；<br><br>
+            <strong>从产品角度</strong>，金越系列产品活动率达成20%，距离目标还有较大差距，建议加大下周营业部课活动推动力度；<br><br>
+            <strong>从客户角度</strong>，区整体访量2500人，低于月预测访量达成时间进度。其中，整体1V1访量2000人、进度正常；1VN访量500人、进度偏低，经分析部课活动场次未达到预期，建议加强对1VN弱体营业部检视推动。<br><br>
+            分部门看，<strong style="color:var(--red)">阳光部1VN访量40人、活动率小于10%，达成进度明显落后时间进度</strong>。主因为出勤率低、部课活动组织少，建议您通过以下几点，提升阳光部指标：
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="st" style="opacity:0;animation:fu .35s .15s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
+            <div class="st-t">建议一：摸底未参会人员，提升早会出勤质量</div>
+            <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：阳光部出勤率低是根本问题，需摸清每个人缺席原因，有针对性地提升早会质量和吸引力，把人拉回来</div></div>
+            <div class="talk">"对阳光部未参会人员情况进行摸底，搞清楚每个人缺席的具体原因，针对性改善早会内容和形式，让大家觉得来了有收获、有动力。"</div>
+          </div>
+          <div class="st" style="opacity:0;animation:fu .35s .3s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
+            <div class="st-t">建议二：加强部课活动组织，推动1VN客户梳理</div>
+            <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：1VN访量低的直接原因是部课活动场次不足，需从活动组织和客户梳理两端同步发力，快速补齐访量缺口</div></div>
+            <div class="talk">"要求付彩芳本周内补足部课活动场次，同时推动每位属员梳理本月参加活动的高价值客户名单，确保1VN邀约有名单、有动作、有跟进。"</div>
+          </div>
+          <div class="st" style="opacity:0;animation:fu .35s .45s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
+            <div class="st-t">建议三：安排朝阳部崔向丽带队进行1VN经验输出</div>
+            <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：借朝阳部1VN标杆力量打开阳光部实战信心，用经验分享+现场陪跑快速带动部课活动和邀约行动</div></div>
+            <div class="talk">"安排1VN达成第一的朝阳部经理崔向丽带主管入场，对阳光部做一次1VN活动组织实战分享，并监督制定本周活动计划并追踪落地执行。"</div>
+          </div>
+        </div>
+        <div class="done-b mt12" style="opacity:0;animation:fu .35s .6s ease forwards">✅ 预警诊断已完成，提升建议已推送至付彩芳工作台，跨部协同任务已发送至崔向丽</div>
+      </div>`;
+  },300);
 }
-
 // ====== SCENE 6: 报告制作 ======
 function r6(){
   $('C').innerHTML=`
