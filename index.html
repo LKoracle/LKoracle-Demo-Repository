@@ -931,13 +931,24 @@ function r3s(){
   idleMic(ch3,'ch3a',[
     {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我分析8个营业部中1VN活动率，对第一个达成30%营业部制作贺报</div>`},
     {d:1500,h:`<div class="ai-think" id="t3a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①分析维度=1VN活动率 ②范围=8个营业部 ③触发条件=达成30% ④动作=制作贺报</div><div class="tl">▸ 正在调取8个营业部1VN活动率数据：朝阳部32%、瑞祥部25%、星辰部22%、明德部20%、启明部18%、天成部17%、越秀部15%、阳光部9%</div><div class="tl">▸ 数据排序完成：朝阳部1VN活动率32%，为首个突破30%达成线的营业部 → 符合触发条件</div><div class="tl">▸ 正在调用内容创作智能体，基于朝阳部核心数据自动生成贺报… 匹配模板、填充指标、渲染视觉效果…</div><span class="cur"></span></div>`,tk:'t3a',tc:4},
-    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已为您分析数据并完成贺报制作。</div>`},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已基于营业部经营数据为您自动分析并完成贺报制作。</div>`},
     {d:600,h:`<div id="posterWrap"><div class="poster-card" id="posterCard" style="background:linear-gradient(160deg,#f7a833 0%,#e8862c 30%,#d4522a 65%,#c0392b 100%);opacity:0;animation:fu .5s ease forwards"><div class="poster-bg-deco"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="ray" style="transform:rotate(30deg)"></div><div class="ray" style="transform:rotate(150deg)"></div><div class="ray" style="transform:rotate(-30deg)"></div><div class="ray" style="transform:rotate(-150deg)"></div></div><div class="poster-sparkles"><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div></div><div class="poster-ribbon">TOP 1</div><div class="poster-corner-tl"></div><div class="poster-corner-tr"></div><div class="poster-corner-bl"></div><div class="poster-corner-br"></div><div class="poster-inner"><div class="poster-logo-row"><div class="poster-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div><div class="poster-logo-text">平安DO · 贺报</div></div><div class="poster-title" id="pTitle">贺 报</div><div class="poster-trophy-wrap"><div class="poster-trophy-glow"></div><div class="poster-trophy" id="pTrophy">🏆</div></div><div class="poster-congrats">恭 喜</div><div class="poster-dept" id="pDept">朝阳营业部</div><div class="poster-stats-row"><div class="poster-stat-item"><div class="ps-val" id="pStatNum">32%</div><div class="ps-label" id="pStatLabel">1VN活动率</div></div><div class="poster-divider"></div><div class="poster-stat-item"><div class="ps-val">NO.1</div><div class="ps-label">全区排名</div></div></div><div class="poster-rank-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f7c948" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg><span style="color:#fde68a;font-size:13px;font-weight:700" id="pRank">全区排名第一</span></div><div class="poster-date">2026年3月</div><div class="poster-footer-brand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg><span>平安DO.万能营销助手</span></div></div></div></div>`},
-    {d:400,h:`<div class="poster-actions" id="posterActions"><button class="btn-outline" onclick="refreshPoster()">🔄 换一换</button><button class="btn btn-gn" id="confirmPosterBtn" onclick="downloadPoster()">⬇ 下载</button></div><div id="posterDone"></div>`}
+    {d:400,h:`<div class="poster-actions" id="posterActions"><button class="btn-outline" onclick="refreshPoster()">🔄 换一换</button><button class="btn btn-gn" id="confirmPosterBtn" onclick="downloadPoster()">⬇ 下载</button></div><div id="posterDone"></div>`},
+    {d:600,h:`<div class="bub ai" style="opacity:0;animation:fu .35s ease forwards"><div class="sn">🤖 AI助手</div>是否需要我每周执行一次，自动生成并推送贺报？</div><div id="weeklyPrompt" style="margin-top:8px;opacity:0;animation:fu .35s .2s ease forwards"><button class="btn btn-p" style="font-size:12px;padding:8px 18px" onclick="confirmWeekly()">👍 好的</button></div>`}
   ]);
 }
 
 let posterVer=0;
+function confirmWeekly(){
+  const btn=document.querySelector('#weeklyPrompt button');
+  if(btn){btn.disabled=true;btn.style.opacity='.4';}
+  const ch=$('chCombo')||$('ch3a');
+  if(ch) ch.insertAdjacentHTML('beforeend',`<div class="bub usr" style="opacity:0;animation:fu .3s ease forwards"><div class="sn">👤 赵虎</div>好的</div>`);
+  setTimeout(()=>{
+    if(ch) ch.insertAdjacentHTML('beforeend',`<div class="bub ai" style="opacity:0;animation:fu .3s ease forwards"><div class="sn">🤖 AI助手</div>好的，我已为您设置每周自动执行：每周五晚系统自动调取各营业部1VN活动率数据，对达成30%的营业部自动生成贺报并推送至您的工作台，无需手动操作。</div>`);
+  },800);
+}
+
 const posterStyles=[
   {bg:'linear-gradient(160deg,#f7a833 0%,#e8862c 30%,#d4522a 65%,#c0392b 100%)',trophy:'🏆',num:'32%',label:'1VN活动率',rank:'全区排名第一',ribbon:'TOP 1'},
   {bg:'linear-gradient(160deg,#b91c1c 0%,#dc2626 40%,#ef4444 80%,#f87171 100%)',trophy:'🥇',num:'32%',label:'1VN活动率',rank:'率先突破30%大关',ribbon:'冠军'},
@@ -1008,7 +1019,7 @@ function pickFmt(fmt){
   const fmtLabel=fmt==='long'?'长图':'视频';
   const items=[
     {d:400,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>${fmtLabel}吧</div>`},
-    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已为您生成好。</div>`},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>${fmt==='long'?'好的，已为您生成好，包括应用场景、实操关键、亮点效果、方法提炼等。':'好的，已为您生成好。'}</div>`},
     {d:600,h:fmt==='long'?buildCaseLongImg():buildCaseVideo()},
     {d:400,h:`<div class="poster-actions" id="caseActions"><button class="btn-outline" onclick="refreshCaseImg()">🔄 换一换</button><button class="btn btn-gn" id="caseConfirmBtn" onclick="downloadCase4()">⬇ 下载</button></div><div id="caseDone4"></div>`}
   ];
@@ -1062,9 +1073,10 @@ function _comboRound1(ch){
   idleMic(ch,'combo1',[
     {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我分析8个营业部中1VN活动率，对第一个达成30%营业部制作贺报</div>`},
     {d:1500,h:`<div class="ai-think" id="t3a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①分析维度=1VN活动率 ②范围=8个营业部 ③触发条件=达成30% ④动作=制作贺报</div><div class="tl">▸ 正在调取8个营业部1VN活动率数据：朝阳部32%、瑞祥部25%、星辰部22%、明德部20%、启明部18%、天成部17%、越秀部15%、阳光部9%</div><div class="tl">▸ 数据排序完成：朝阳部1VN活动率32%，为首个突破30%达成线的营业部 → 符合触发条件</div><div class="tl">▸ 正在调用内容创作智能体，基于朝阳部核心数据自动生成贺报… 匹配模板、填充指标、渲染视觉效果…</div><span class="cur"></span></div>`,tk:'t3a',tc:4},
-    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已为您分析数据并完成贺报制作。</div>`},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已基于营业部经营数据为您自动分析并完成贺报制作。</div>`},
     {d:600,h:`<div id="posterWrap"><div class="poster-card" id="posterCard" style="background:linear-gradient(160deg,#f7a833 0%,#e8862c 30%,#d4522a 65%,#c0392b 100%);opacity:0;animation:fu .5s ease forwards"><div class="poster-bg-deco"><div class="circle1"></div><div class="circle2"></div><div class="circle3"></div><div class="ray" style="transform:rotate(30deg)"></div><div class="ray" style="transform:rotate(150deg)"></div><div class="ray" style="transform:rotate(-30deg)"></div><div class="ray" style="transform:rotate(-150deg)"></div></div><div class="poster-sparkles"><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div><div class="poster-sparkle"></div></div><div class="poster-ribbon">TOP 1</div><div class="poster-corner-tl"></div><div class="poster-corner-tr"></div><div class="poster-corner-bl"></div><div class="poster-corner-br"></div><div class="poster-inner"><div class="poster-logo-row"><div class="poster-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div><div class="poster-logo-text">平安DO · 贺报</div></div><div class="poster-title" id="pTitle">贺 报</div><div class="poster-trophy-wrap"><div class="poster-trophy-glow"></div><div class="poster-trophy" id="pTrophy">🏆</div></div><div class="poster-congrats">恭 喜</div><div class="poster-dept" id="pDept">朝阳营业部</div><div class="poster-stats-row"><div class="poster-stat-item"><div class="ps-val" id="pStatNum">32%</div><div class="ps-label" id="pStatLabel">1VN活动率</div></div><div class="poster-divider"></div><div class="poster-stat-item"><div class="ps-val">NO.1</div><div class="ps-label">全区排名</div></div></div><div class="poster-rank-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f7c948" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg><span style="color:#fde68a;font-size:13px;font-weight:700" id="pRank">全区排名第一</span></div><div class="poster-date">2026年3月</div><div class="poster-footer-brand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12h8M12 8v8"/></svg><span>平安DO.万能营销助手</span></div></div></div></div>`},
-    {d:400,h:`<div class="poster-actions" id="posterActions"><button class="btn-outline" onclick="refreshPoster()">🔄 换一换</button><button class="btn btn-gn" id="confirmPosterBtn" onclick="downloadPoster()">⬇ 下载</button></div><div id="posterDone"></div>`}
+    {d:400,h:`<div class="poster-actions" id="posterActions"><button class="btn-outline" onclick="refreshPoster()">🔄 换一换</button><button class="btn btn-gn" id="confirmPosterBtn" onclick="downloadPoster()">⬇ 下载</button></div><div id="posterDone"></div>`},
+    {d:600,h:`<div class="bub ai" style="opacity:0;animation:fu .35s ease forwards"><div class="sn">🤖 AI助手</div>是否需要我每周执行一次，自动生成并推送贺报？</div><div id="weeklyPrompt" style="margin-top:8px;opacity:0;animation:fu .35s .2s ease forwards"><button class="btn btn-p" style="font-size:12px;padding:8px 18px" onclick="confirmWeekly()">👍 好的</button></div>`}
   ]);
   // After贺报 done → chain to round 2 (案例)
   window['_viItems_combo1'].chatItems.push({d:600,h:'',_afterRender:()=>_comboRound2(ch)});
@@ -1092,7 +1104,7 @@ function _comboRound3(ch){
     {d:0,h:`<div style="border-top:1px dashed var(--border);margin:16px 0 8px;display:flex;align-items:center;gap:8px"><span style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.5px;white-space:nowrap">📌 会议材料</span></div>`},
     {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我对1VN活动率达成后2名的部经理组织主管检视会</div>`},
     {d:1500,h:`<div class="ai-think" id="t6a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①筛选维度=1VN活动率 ②对象=达成后2名的部经理 ③动作=组织主管检视会</div><div class="tl">▸ 正在调取8个营业部1VN活动率排名：朝阳部32%、瑞祥部25%、星辰部22%、明德部20%、启明部18%、天成部17%、越秀部15%、阳光部9%</div><div class="tl">▸ 排名末2位确认：越秀部（15%）付彩芳经理、阳光部（9%）张宁经理 → 需组织主管检视会</div><div class="tl">▸ 正在检索相关人员日历空闲时段… 匹配到本周四下午14:00-15:30全员可参会</div><div class="tl">▸ 正在自动生成主管检视会PPT：汇总8部排名数据、标注优秀案例、生成工作要求… PPT渲染完成</div><div class="tl">▸ 已为阳光部、越秀部生成主管检视会邀约，待用户确认后发送</div><span class="cur"></span></div>`,tk:'t6a',tc:6},
-    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>已为您分析数据，并为阳光部、越秀部生成主管检视会邀约，以下是我为您生成的PPT，请您确认：</div>`},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>已为您分析数据，并对阳光部、越秀部发送主管检视会邀约，以下是我为您生成的本周会议PPT，请您确认：</div>`},
     {d:600,h:`<div class="ppt-deck" style="opacity:0;animation:fu .5s ease forwards"><div class="ppt-deck-head"><div class="pdh-title">📊 主管检视会议.pptx</div><div class="pdh-actions"><button class="pdh-btn" onclick="alert('PPT预览功能')">👁 预览</button><button class="pdh-btn" onclick="alert('PPT下载中...')">⬇ 下载</button><button class="pdh-btn" onclick="alert('转发到微信群')">↗ 转发</button></div></div><div class="ppt-slides"><div class="ppt-slide" style="animation-delay:.1s"><div class="ps-num">P1</div><div class="ps-body"><div class="ps-title">业务区8个部1VN活动邀约情况排名</div><div class="ps-desc">朝阳部32% · 瑞祥部25% · 星辰部22% · 明德部20% · 启明部18% · 天成部17% · 越秀部15% · 阳光部9%，含各部环比趋势与达成率对比图</div></div></div><div class="ppt-slide" style="animation-delay:.2s"><div class="ps-num">P2</div><div class="ps-body"><div class="ps-title">1VN活动邀约详情分析</div><div class="ps-desc">各营业部邀约客户数、到场率、活动场次、人均参与次数等核心指标明细，标注末位部门差距与改善空间</div></div></div><div class="ppt-slide" style="animation-delay:.3s"><div class="ps-num">P3</div><div class="ps-body"><div class="ps-title">优秀案例展示</div><div class="ps-desc">朝阳部崔向丽经理1VN活动率32%达成经验复盘：精准邀约策略、活动组织流程、48小时回访转化方法</div></div></div><div class="ppt-slide" style="animation-delay:.4s"><div class="ps-num">P4</div><div class="ps-body"><div class="ps-title">末位部门问题诊断</div><div class="ps-desc">阳光部（9%）：出勤率低+客户梳理不足；越秀部（15%）：活动频次不够+邀约转化低，逐一归因分析</div></div></div><div class="ppt-slide" style="animation-delay:.5s"><div class="ps-num">P5</div><div class="ps-body"><div class="ps-title">下一步工作要求</div><div class="ps-desc">各部整改动作清单、责任人、截止日期、检查标准，含阳光部和越秀部专项提升计划与周度追踪节点</div></div></div></div></div>`},
     {d:800,h:`<div class="meeting-invite" style="animation-delay:.1s"><div class="mi-head"><div class="mi-icon">📅</div><div><div class="mi-title">主管检视会 · 会议邀约</div><div class="mi-sub">AI已自动匹配全员空闲时段</div></div></div><div class="mi-rows"><div class="mi-row"><div class="mir-label">会议主题</div><div class="mir-val">1VN活动率末位部门主管检视会</div></div><div class="mi-row"><div class="mir-label">会议时间</div><div class="mir-val"><strong>本周四 14:00 - 15:30</strong></div></div><div class="mi-row"><div class="mir-label">参会人员</div><div class="mir-val">赵虎（主持）、张宁（阳光部经理）、付彩芳（越秀部经理）及相关主管</div></div><div class="mi-row"><div class="mir-label">会议地点</div><div class="mir-val">营业区3楼会议室A</div></div><div class="mi-row"><div class="mir-label">会议附件</div><div class="mir-val">📊 主管检视会议.pptx（已自动附加）</div></div></div></div>`},
     {d:400,h:`<div class="poster-actions" id="s6Actions"><button class="btn btn-gn" id="s6ConfirmBtn" onclick="confirmS6()">✅ 确认</button></div><div id="s6Done"></div>`}
@@ -1119,16 +1131,102 @@ function r5s(){
 function _renderTrackContent(container){
   const c = container || $('c5');
   c.innerHTML=`
+    <!-- NBEV总览行 -->
     <div class="kpi-grid" style="opacity:0;animation:fu .4s ease forwards">
       <div class="kpi"><div class="kpi-label">本月NBEV · 当日新增</div><div class="kpi-val">10<span>万</span></div><div class="pbar"><div class="pfill" style="--w:67%"></div></div><div class="kpi-sub" style="color:var(--orange)">⚠ 进度略低于时间进度</div></div>
       <div class="kpi"><div class="kpi-label">本月NBEV · 月达成</div><div class="kpi-val">200<span>万</span></div><div class="kpi-sub">目标300万 · 还差<strong style="color:var(--orange)">100万</strong></div></div>
       <div class="kpi"><div class="kpi-label">全省营业区排名</div><div class="kpi-val">35<span style="font-size:14px">/ 50</span></div><div class="kpi-sub" style="color:var(--orange)">距前20名差距 <strong>30万</strong></div></div>
     </div>
-    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-top:0;opacity:0;animation:fu .4s .15s ease forwards">
-      <div class="kpi"><div class="kpi-label">整体访量</div><div class="kpi-val">2500<span style="font-size:14px">人</span></div><div class="kpi-sub" style="color:var(--orange)">⚠ 低于时间进度</div></div>
-      <div class="kpi"><div class="kpi-label">1V1访量</div><div class="kpi-val">2000<span style="font-size:14px">人</span></div><div class="kpi-sub"><span class="ok2">✅ 进度正常</span></div></div>
-      <div class="kpi"><div class="kpi-label">1VN访量</div><div class="kpi-val">500<span style="font-size:14px">人</span></div><div class="kpi-sub" style="color:var(--orange)">⚠ 进度偏低</div></div>
-      <div class="kpi" style="border-left:3px solid var(--red)"><div class="kpi-label">阳光部 1VN访量</div><div class="kpi-val" style="color:var(--red)">40<span style="font-size:14px">人</span></div><div class="kpi-sub" style="color:var(--red)">⚠ 活动率 &lt;10%</div></div>
+    <!-- 三维度分析卡 -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:0;opacity:0;animation:fu .4s .15s ease forwards">
+      <!-- 队伍维度 -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm)">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:12px">👑 队伍维度</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="font-size:12px;color:var(--text-secondary)">双金钻</span>
+              <span style="font-size:13px;font-weight:700;color:var(--green)">10人 ✅</span>
+            </div>
+            <div style="height:6px;background:var(--blue-50);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:100%;background:linear-gradient(90deg,var(--green),#34d399);border-radius:3px"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="font-size:12px;color:var(--text-secondary)">金钻</span>
+              <span style="font-size:13px;font-weight:700;color:var(--green)">30人 ✅</span>
+            </div>
+            <div style="height:6px;background:var(--blue-50);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:100%;background:linear-gradient(90deg,var(--green),#34d399);border-radius:3px"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="font-size:12px;color:var(--text-secondary)">钻石</span>
+              <span style="font-size:13px;font-weight:700;color:var(--orange)">64人<span style="font-size:11px;font-weight:400;color:var(--text-muted)"> / 目标80人</span></span>
+            </div>
+            <div style="height:6px;background:var(--blue-50);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:80%;background:linear-gradient(90deg,var(--orange),#fbbf24);border-radius:3px;animation:pg 1s .5s ease forwards;--w:80%"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="font-size:12px;color:var(--text-secondary)">有效活动人力</span>
+              <span style="font-size:13px;font-weight:700;color:var(--orange)">32人<span style="font-size:11px;font-weight:400;color:var(--text-muted)"> / 目标40人</span></span>
+            </div>
+            <div style="height:6px;background:var(--blue-50);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:80%;background:linear-gradient(90deg,var(--orange),#fbbf24);border-radius:3px;animation:pg 1s .6s ease forwards;--w:80%"></div>
+            </div>
+          </div>
+          <div style="background:var(--orange-bg);border-radius:6px;padding:6px 9px;font-size:11px;color:#92400e;margin-top:2px">⚠ 钻石人力还有差距，建议对达钻差距较小人员重点追踪</div>
+        </div>
+      </div>
+      <!-- 产品维度 -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--blue-500);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm)">
+        <div style="font-size:11px;font-weight:700;color:var(--blue-600);letter-spacing:.5px;margin-bottom:12px">📦 产品维度</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="font-size:12px;color:var(--text-secondary)">金越系列活动率</span>
+              <span style="font-size:13px;font-weight:700;color:var(--orange)">20%<span style="font-size:11px;font-weight:400;color:var(--text-muted)"> / 目标30%</span></span>
+            </div>
+            <div style="height:6px;background:var(--blue-50);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:67%;background:linear-gradient(90deg,var(--orange),#fbbf24);border-radius:3px;animation:pg 1s .4s ease forwards;--w:67%"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="font-size:12px;color:var(--text-secondary)">重疾保障类活动率</span>
+              <span style="font-size:13px;font-weight:700;color:var(--green)">12%<span style="font-size:11px;font-weight:400;color:var(--text-muted)"> / 目标10%</span></span>
+            </div>
+            <div style="height:6px;background:var(--blue-50);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:100%;background:linear-gradient(90deg,var(--green),#34d399);border-radius:3px"></div>
+            </div>
+          </div>
+          <div style="background:var(--orange-bg);border-radius:6px;padding:6px 9px;font-size:11px;color:#92400e">⚠ 金越活动率距目标差距较大，建议加大部课活动推动力度</div>
+        </div>
+      </div>
+      <!-- 客户维度 -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--green);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm)">
+        <div style="font-size:11px;font-weight:700;color:#047857;letter-spacing:.5px;margin-bottom:12px">👥 客户维度</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--text-secondary)">整体访量</span>
+            <span style="font-size:13px;font-weight:700;color:var(--orange)">2,500人 ⚠</span>
+          </div>
+          <div style="height:1px;background:var(--border-light)"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--text-secondary)">1V1访量</span>
+            <span style="font-size:13px;font-weight:700;color:var(--green)">2,000人 ✅</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--text-secondary)">1VN访量</span>
+            <span style="font-size:13px;font-weight:700;color:var(--orange)">500人 ⚠</span>
+          </div>
+          <div style="background:var(--orange-bg);border-radius:6px;padding:6px 9px;font-size:11px;color:#92400e;margin-top:2px">⚠ 部课活动场次未达预期，建议加强1VN弱体营业部检视</div>
+        </div>
+      </div>
     </div>
     <div id="s5chat"></div>`;
   const t1=setTimeout(()=>{
@@ -1188,7 +1286,7 @@ function r6s(){
   idleMic(ch6,'ch6',[
     {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我对1VN活动率达成后2名的部经理组织主管检视会</div>`},
     {d:1500,h:`<div class="ai-think" id="t6a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①筛选维度=1VN活动率 ②对象=达成后2名的部经理 ③动作=组织主管检视会</div><div class="tl">▸ 正在调取8个营业部1VN活动率排名：朝阳部32%、瑞祥部25%、星辰部22%、明德部20%、启明部18%、天成部17%、越秀部15%、阳光部9%</div><div class="tl">▸ 排名末2位确认：越秀部（15%）付彩芳经理、阳光部（9%）张宁经理 → 需组织主管检视会</div><div class="tl">▸ 正在检索相关人员日历空闲时段… 匹配到本周四下午14:00-15:30全员可参会</div><div class="tl">▸ 正在自动生成主管检视会PPT：汇总8部排名数据、标注优秀案例、生成工作要求… PPT渲染完成</div><div class="tl">▸ 已为阳光部、越秀部生成主管检视会邀约，待用户确认后发送</div><span class="cur"></span></div>`,tk:'t6a',tc:6},
-    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>已为您分析数据，并为阳光部、越秀部生成主管检视会邀约，以下是我为您生成的PPT，请您确认：</div>`},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>已为您分析数据，并对阳光部、越秀部发送主管检视会邀约，以下是我为您生成的本周会议PPT，请您确认：</div>`},
     {d:600,h:`<div class="ppt-deck" style="opacity:0;animation:fu .5s ease forwards"><div class="ppt-deck-head"><div class="pdh-title">📊 主管检视会议.pptx</div><div class="pdh-actions"><button class="pdh-btn" onclick="alert('PPT预览功能')">👁 预览</button><button class="pdh-btn" onclick="alert('PPT下载中...')">⬇ 下载</button><button class="pdh-btn" onclick="alert('转发到微信群')">↗ 转发</button></div></div><div class="ppt-slides"><div class="ppt-slide" style="animation-delay:.1s"><div class="ps-num">P1</div><div class="ps-body"><div class="ps-title">业务区8个部1VN活动邀约情况排名</div><div class="ps-desc">朝阳部32% · 瑞祥部25% · 星辰部22% · 明德部20% · 启明部18% · 天成部17% · 越秀部15% · 阳光部9%，含各部环比趋势与达成率对比图</div></div></div><div class="ppt-slide" style="animation-delay:.2s"><div class="ps-num">P2</div><div class="ps-body"><div class="ps-title">1VN活动邀约详情分析</div><div class="ps-desc">各营业部邀约客户数、到场率、活动场次、人均参与次数等核心指标明细，标注末位部门差距与改善空间</div></div></div><div class="ppt-slide" style="animation-delay:.3s"><div class="ps-num">P3</div><div class="ps-body"><div class="ps-title">优秀案例展示</div><div class="ps-desc">朝阳部崔向丽经理1VN活动率32%达成经验复盘：精准邀约策略、活动组织流程、48小时回访转化方法</div></div></div><div class="ppt-slide" style="animation-delay:.4s"><div class="ps-num">P4</div><div class="ps-body"><div class="ps-title">末位部门问题诊断</div><div class="ps-desc">阳光部（9%）：出勤率低+客户梳理不足；越秀部（15%）：活动频次不够+邀约转化低，逐一归因分析</div></div></div><div class="ppt-slide" style="animation-delay:.5s"><div class="ps-num">P5</div><div class="ps-body"><div class="ps-title">下一步工作要求</div><div class="ps-desc">各部整改动作清单、责任人、截止日期、检查标准，含阳光部和越秀部专项提升计划与周度追踪节点</div></div></div></div></div>`},
     {d:800,h:`<div class="meeting-invite" style="animation-delay:.1s"><div class="mi-head"><div class="mi-icon">📅</div><div><div class="mi-title">主管检视会 · 会议邀约</div><div class="mi-sub">AI已自动匹配全员空闲时段</div></div></div><div class="mi-rows"><div class="mi-row"><div class="mir-label">会议主题</div><div class="mir-val">1VN活动率末位部门主管检视会</div></div><div class="mi-row"><div class="mir-label">会议时间</div><div class="mir-val"><strong>本周四 14:00 - 15:30</strong></div></div><div class="mi-row"><div class="mir-label">参会人员</div><div class="mir-val">赵虎（主持）、张宁（阳光部经理）、付彩芳（越秀部经理）及相关主管</div></div><div class="mi-row"><div class="mir-label">会议地点</div><div class="mir-val">营业区3楼会议室A</div></div><div class="mi-row"><div class="mir-label">会议附件</div><div class="mir-val">📊 主管检视会议.pptx（已自动附加）</div></div></div></div>`},
     {d:400,h:`<div class="poster-actions" id="s6Actions"><button class="btn btn-gn" id="s6ConfirmBtn" onclick="confirmS6()">✅ 确认</button></div><div id="s6Done"></div>`}
