@@ -343,7 +343,8 @@ body{font-family:'Noto Sans SC','DM Sans',-apple-system,sans-serif;background:va
 <div class="app">
   <div class="main" id="M">
     <div class="tabs" id="tabs">
-      <button class="tab on" onclick="go(1)">制定业务规划、配套活动计划</button>
+      <button class="tab on" onclick="go(1)">制定业务规划</button>
+      <button class="tab" onclick="go(7)">配套活动计划</button>
       <button class="tab" onclick="go(2)">队伍圈定面谈</button>
       <button class="tab" onclick="go(3)">业绩追踪</button>
       <button class="tab" onclick="go(4)">贺报</button>
@@ -384,8 +385,8 @@ function mkS(labels,active){
   return `<div class="steps">${labels.map((s,i)=>`<button class="sbtn ${i+1===active?'on':''} ${i+1<active?'ok':''}" onclick="jmp(${i+1})">${s}</button>`).join('')}</div>`;
 }
 function jmp(n){clr();sp=n;render()}
-function go(n){clr();csid();sc=n;sp=1;document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',i===n-1));$('nf').classList.add('hid');render()}
-function render(){switch(sc){case 1:r1();break;case 2:r2();break;case 3:r5();break;case 4:r3();break;case 5:r4();break;case 6:r6();break}}
+function go(n){clr();csid();sc=n;sp=1;const tabOrder=[1,7,2,3,4,5,6];document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',tabOrder[i]===n));$('nf').classList.add('hid');render()}
+function render(){switch(sc){case 1:r1();break;case 7:r7();break;case 2:r2();break;case 3:r5();break;case 4:r3();break;case 5:r4();break;case 6:r6();break}}
 
 // ====== VOICE IDLE HELPER ======
 // Float mic bar: 3 states — idle (clickable) | rec (red pulse) | wait (grey, non-clickable)
@@ -478,8 +479,8 @@ function rChatSeq(el, items, chatId){
 // ====== SCENE 1 ======
 function r1(){
   $('C').innerHTML=`
-    <div class="scene-t">制定业务规划、配套活动计划</div>
-    <div class="scene-s">AI分析客户资源，自动生成活动策划方案 <span class="atag">营销规划智能体</span></div>
+    <div class="scene-t">制定业务规划</div>
+    <div class="scene-s">AI拆解NBEV目标，规划业务达成路径与经营动作 <span class="atag">营销规划智能体</span></div>
     <div id="c1"></div>`;
   r1s();
 }
@@ -588,23 +589,30 @@ function r1s(){
   </div>
 </div>`},    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>按<strong>客户角度</strong>，营业区共计有AB类/中高温的高价值客户4,239人、53,249名低温客户；同时，司庆季系统下发目标客户是31,816人，包括旺财资金闲置客户183名、医疗险续保客户8,504人等。结合产品策略及客户分布，达成NBEV目标需要成交中高温客户350人，预估访量3,500人，其中1V1访量3,000人、1VN访量500人。以下为您生成业务区客户地图及客户客价分布，请您查看。</div>`},
     {d:600,h:`<div class="cust-map" style="opacity:0;animation:fu .5s ease forwards"><div class="cust-map-head">📊 业务区客户资源地图</div><div class="cust-map-body"><div class="cust-map-grid" style="grid-template-columns:repeat(4,1fr)"><div class="cm-cell highlight"><div class="cm-val">4,239</div><div class="cm-label">AB类/中高温<br>高价值客户</div></div><div class="cm-cell" style="border-left:3px solid var(--blue-300)"><div class="cm-val" style="color:var(--blue-500)">53,249</div><div class="cm-label">低温客户</div></div><div class="cm-cell"><div class="cm-val">31,816</div><div class="cm-label">司庆季<br>目标客户</div></div><div class="cm-cell highlight" style="background:linear-gradient(160deg,#ecfdf5,#f0fdf4);border-color:var(--green-border)"><div class="cm-val" style="color:#059669">350</div><div class="cm-label">达成目标<br>需成交客户</div></div></div><div style="font-size:12px;font-weight:700;color:var(--text-muted);margin:12px 0 8px">📋 目标客户明细</div><div class="target-list"><div class="target-item"><span class="ti-name">医疗险续保客户</span><span class="ti-count">8,504人</span></div><div class="target-item"><span class="ti-name">旺财资金闲置客户</span><span class="ti-count">183人</span></div><div class="target-item"><span class="ti-name">重疾险到期客户</span><span class="ti-count">5,216人</span></div><div class="target-item"><span class="ti-name">年金险目标客户</span><span class="ti-count">4,892人</span></div><div class="target-item"><span class="ti-name">其他目标客户</span><span class="ti-count">13,021人</span></div></div><div style="font-size:12px;font-weight:700;color:var(--text-muted);margin:12px 0 8px">🎯 访量达成路径</div><div class="target-list"><div class="target-item"><span class="ti-name">预估总访量</span><span class="ti-count" style="color:var(--blue-600);font-weight:700">3,500人次</span></div><div class="target-item"><span class="ti-name">1V1 访量</span><span class="ti-count">3,000人次</span></div><div class="target-item"><span class="ti-name">1VN 访量</span><span class="ti-count">500人次</span></div><div class="target-item"><span class="ti-name">目标成交客户</span><span class="ti-count" style="color:#059669;font-weight:700">350人</span></div></div></div></div>`}
+
   ]);
-  // ── After round 1 renders, set up round 2 idle mic (will rebuild float bar) ──
-  // We hook into rChatSeq's completion by patching idleMic to be called after last item
-  // Instead, we pass a special sentinel item that calls idleMic for round 2
-  window['_viItems_ch1r1'].chatItems.push({
-    d:600,
-    h:'',
-    _afterRender: ()=>{
-      idleMic(ch,'ch1r2',[
-        {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我结合1VN访量目标及目标客户，推荐客户活动场次及策划方案</div>`},
-        {d:1500,h:`<div class="ai-think" id="t1b"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①基于1VN访量目标500人次 ②结合目标客户名单31,816人 ③输出=活动场次推荐+策划方案</div><div class="tl">▸ 拆解1VN访量目标：需达成1VN访量500人次，按每场营业区活动覆盖30人客户、每场部课活动覆盖16人客户计算活动场次…</div><div class="tl">▸ 推算活动场次：营业区活动4场（覆盖中高温客户约120人）+ 部课活动25场（覆盖约400人）= 合计覆盖520人次，满足1VN访量目标…</div><div class="tl">▸ 匹配目标客户名单：分红老客→私董会、有钱妈妈名单→女神节活动，按名单特征匹配最优活动主题…</div><div class="tl">▸ 方案生成完成：营业区4场活动策划 + 25场部课活动安排 + 低温客户线上升温方案，正在输出《客户活动策划方案》…</div><span class="cur"></span></div>`,tk:'t1b',tc:5},
-        {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，结合您业务区1VN访量目标及目标客户情况，建议组织<strong>营业区活动4场、部课活动25场</strong>；营业区活动建议针对中高温客户以转化为目的策划（对分红老客名单建议组织参加私董会活动，对于有钱妈妈名单建议组织女神节活动…），每场需达成参加客户<strong>30人</strong>；对低温客户推动参与线上活动、互动升温。同时，推动营业部每周组织一场活动，每场至少需达成参加客户<strong>16人</strong>。<br><br>已为您生成业务区活动策划方案，请查看《客户活动策划方案》。</div>`},
-        {d:600,h:`<div class="plan-card" style="opacity:0;animation:fu .5s ease forwards"><div class="plan-card-head"><div><div style="display:flex;align-items:center;gap:8px"><span class="pch-icon">📋</span><span class="pch-title">客户活动策划方案</span></div><div class="pch-sub" style="margin-left:32px">营销规划智能体自动生成 ｜ 司庆季专项 · 金越主推</div></div></div><div class="plan-body"><div class="plan-section"><div class="ps-hd">🎯 活动场次目标</div><div class="plan-row"><div class="pr-icon">📌</div><div>营业区活动：<strong>4场</strong>，每场参加客户<strong>≥30人</strong>，覆盖中高温客户约120人次</div></div><div class="plan-row"><div class="pr-icon">📌</div><div>部课活动：<strong>25场</strong>，每场参加客户<strong>≥16人</strong>，覆盖客户约400人次</div></div><div class="plan-row"><div class="pr-icon">📌</div><div>合计1VN覆盖：<strong>≥520人次</strong>，满足本月1VN访量目标500人次</div></div></div><div class="plan-section"><div class="ps-hd">📅 营业区活动方案（共4场 · 每场≥30人）</div><div class="plan-row"><div class="pr-icon">1️⃣</div><div><strong>第1场 · 私董会（分红老客专场）</strong><br>目标名单：分红老客名单，高价值中高温客户<br>活动形式：专属答谢+金越增额权益分享+老客转介绍激励<br>邀约目标：≥30人，由各部经理点对点精准邀约</div></div><div class="plan-row"><div class="pr-icon">2️⃣</div><div><strong>第2场 · 女神节活动（有钱妈妈专场）</strong><br>目标名单：有钱妈妈名单，女性中高温客户<br>活动形式：女神节主题沙龙+家庭财富保障+金越产品专属礼遇<br>邀约目标：≥30人，结合节日场景精准邀约</div></div><div class="plan-row"><div class="pr-icon">3️⃣</div><div><strong>第3场 · 金越产品发布会（高价值客户专场）</strong><br>目标名单：AB类中高温目标客户<br>活动形式：金越权益发布+1对1保障方案咨询+现场签单<br>邀约目标：≥30人，各部按客户资源占比分配邀约任务</div></div><div class="plan-row"><div class="pr-icon">4️⃣</div><div><strong>第4场 · 健康权益体验会（续保/到期客户专场）</strong><br>目标名单：医疗险续保+重疾险到期客户<br>活动形式：健康权益体验+金越组合推荐+二次促成<br>邀约目标：≥30人，结合续保/到期名单精准邀约</div></div></div><div class="plan-section"><div class="ps-hd">🏠 部课活动方案（共25场 · 每场≥16人）</div><div class="plan-row"><div class="pr-icon">📆</div><div><strong>每周5场部课活动</strong>（8个营业部轮次安排，共5周25场）<br>轮换主题：①金越产品权益科普 ②家庭保障规划 ③重疾/医疗险知识 ④养老规划分享 ⑤客户答谢互动<br>每场参加客户：<strong>≥16人</strong>，由部经理负责邀约组织<br>邀约要求：各部每场至少覆盖辖区内中高温目标客户，含1VN邀约记录</div></div></div><div class="plan-section"><div class="ps-hd">📱 低温客户·线上互动升温</div><div class="plan-row"><div class="pr-icon">📲</div><div><strong>每周内容触达：</strong>AI筛选53,249名低温客户，按客价分层推送金越资讯与健康权益内容，每周2次精准触达，培养关注习惯</div></div><div class="plan-row"><div class="pr-icon">🎥</div><div><strong>每月线上直播：</strong>1场「金越权益解读」线上直播，低门槛引导低温客户互动参与，设置专属福利引导留资升温</div></div><div class="plan-row"><div class="pr-icon">📞</div><div><strong>AI外呼跟进：</strong>对互动频次高的低温客户，AI自动发起外呼邀约，推送代理人跟进转化</div></div></div><div class="plan-section"><div class="ps-hd">📈 效果追踪</div><div class="plan-row"><div class="pr-icon">✅</div><div><strong>活动追踪：</strong>营业区4场到场人数、部课25场到场人数、1VN访量完成率<br><strong>转化追踪：</strong>中高温客户成交人数、金越活动率、NBEV周度完成进度<br><strong>追踪节奏：</strong>每场活动后3日内AI生成效果报告，每周五汇总，偏差≥20%自动预警</div></div></div></div></div>`},
-        {d:400,h:`<div class="done-b" style="opacity:0;animation:fu .35s ease forwards">✅ 客户活动策划方案已生成，方案已同步至各营业部经理工作台</div>`}
-      ]);
-    }
-  });
+}
+
+
+// ====== SCENE 7: 配套活动计划 ======
+function r7(){
+  $('C').innerHTML=`
+    <div class="scene-t">配套活动计划</div>
+    <div class="scene-s">结合1VN访量目标及目标客户，AI生成客户活动策划方案 <span class="atag">营销规划智能体</span></div>
+    <div id="c7"></div>`;
+  r7s();
+}
+function r7s(){
+  const c=$('c7');
+  c.innerHTML=`<div class="blk"><div class="blk-t"><span class="ico">💬</span> AI助手对话</div><div class="chat" id="ch7"></div></div>`;
+  const ch=$('ch7');
+  idleMic(ch,'ch7r1',[
+    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我结合1VN访量目标及目标客户，推荐客户活动场次及策划方案</div>`},
+    {d:1500,h:`<div class="ai-think" id="t7a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①基于1VN访量目标500人次 ②结合目标客户名单31,816人 ③输出=活动场次推荐+策划方案</div><div class="tl">▸ 拆解1VN访量目标：需达成1VN访量500人次，按每场营业区活动覆盖30人客户、每场部课活动覆盖16人客户计算活动场次…</div><div class="tl">▸ 推算活动场次：营业区活动4场（覆盖中高温客户约120人）+ 部课活动25场（覆盖约400人）= 合计覆盖520人次，满足1VN访量目标…</div><div class="tl">▸ 匹配目标客户名单：分红老客→私董会、有钱妈妈名单→女神节活动，按名单特征匹配最优活动主题…</div><div class="tl">▸ 方案生成完成：营业区4场活动策划 + 25场部课活动安排 + 低温客户线上升温方案，正在输出《客户活动策划方案》…</div><span class="cur"></span></div>`,tk:'t7a',tc:5},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，结合您业务区1VN访量目标及目标客户情况，建议组织<strong>营业区活动4场、部课活动25场</strong>；营业区活动建议针对中高温客户以转化为目的策划（对分红老客名单建议组织参加私董会活动，对于有钱妈妈名单建议组织女神节活动…），每场需达成参加客户<strong>30人</strong>；对低温客户推动参与线上活动、互动升温。同时，推动营业部每周组织一场活动，每场至少需达成参加客户<strong>16人</strong>。<br><br>已为您生成业务区活动策划方案，请查看《客户活动策划方案》。</div>`},
+    {d:600,h:`<div class="plan-card" style="opacity:0;animation:fu .5s ease forwards"><div class="plan-card-head"><div><div style="display:flex;align-items:center;gap:8px"><span class="pch-icon">📋</span><span class="pch-title">客户活动策划方案</span></div><div class="pch-sub" style="margin-left:32px">营销规划智能体自动生成 ｜ 司庆季专项 · 金越主推</div></div></div><div class="plan-body"><div class="plan-section"><div class="ps-hd">🎯 活动场次目标</div><div class="plan-row"><div class="pr-icon">📌</div><div>营业区活动：<strong>4场</strong>，每场参加客户<strong>≥30人</strong>，覆盖中高温客户约120人次</div></div><div class="plan-row"><div class="pr-icon">📌</div><div>部课活动：<strong>25场</strong>，每场参加客户<strong>≥16人</strong>，覆盖客户约400人次</div></div><div class="plan-row"><div class="pr-icon">📌</div><div>合计1VN覆盖：<strong>≥520人次</strong>，满足本月1VN访量目标500人次</div></div></div><div class="plan-section"><div class="ps-hd">📅 营业区活动方案（共4场 · 每场≥30人）</div><div class="plan-row"><div class="pr-icon">1️⃣</div><div><strong>第1场 · 私董会（分红老客专场）</strong><br>目标名单：分红老客名单，高价值中高温客户<br>活动形式：专属答谢+金越增额权益分享+老客转介绍激励<br>邀约目标：≥30人，由各部经理点对点精准邀约</div></div><div class="plan-row"><div class="pr-icon">2️⃣</div><div><strong>第2场 · 女神节活动（有钱妈妈专场）</strong><br>目标名单：有钱妈妈名单，女性中高温客户<br>活动形式：女神节主题沙龙+家庭财富保障+金越产品专属礼遇<br>邀约目标：≥30人，结合节日场景精准邀约</div></div><div class="plan-row"><div class="pr-icon">3️⃣</div><div><strong>第3场 · 金越产品发布会（高价值客户专场）</strong><br>目标名单：AB类中高温目标客户<br>活动形式：金越权益发布+1对1保障方案咨询+现场签单<br>邀约目标：≥30人，各部按客户资源占比分配邀约任务</div></div><div class="plan-row"><div class="pr-icon">4️⃣</div><div><strong>第4场 · 健康权益体验会（续保/到期客户专场）</strong><br>目标名单：医疗险续保+重疾险到期客户<br>活动形式：健康权益体验+金越组合推荐+二次促成<br>邀约目标：≥30人，结合续保/到期名单精准邀约</div></div></div><div class="plan-section"><div class="ps-hd">🏠 部课活动方案（共25场 · 每场≥16人）</div><div class="plan-row"><div class="pr-icon">📆</div><div><strong>每周5场部课活动</strong>（8个营业部轮次安排，共5周25场）<br>轮换主题：①金越产品权益科普 ②家庭保障规划 ③重疾/医疗险知识 ④养老规划分享 ⑤客户答谢互动<br>每场参加客户：<strong>≥16人</strong>，由部经理负责邀约组织</div></div></div><div class="plan-section"><div class="ps-hd">📱 低温客户·线上互动升温</div><div class="plan-row"><div class="pr-icon">📲</div><div><strong>每周内容触达：</strong>AI筛选53,249名低温客户，按客价分层推送金越资讯，每周2次精准触达</div></div><div class="plan-row"><div class="pr-icon">🎥</div><div><strong>每月线上直播：</strong>1场「金越权益解读」线上直播，设置专属福利引导留资升温</div></div><div class="plan-row"><div class="pr-icon">📞</div><div><strong>AI外呼跟进：</strong>对互动频次高的低温客户，AI自动发起外呼邀约，推送代理人跟进转化</div></div></div><div class="plan-section"><div class="ps-hd">📈 效果追踪</div><div class="plan-row"><div class="pr-icon">✅</div><div><strong>活动追踪：</strong>营业区4场到场人数、部课25场到场人数、1VN访量完成率<br><strong>转化追踪：</strong>中高温客户成交人数、金越活动率、NBEV周度完成进度<br><strong>追踪节奏：</strong>每场活动后3日内AI生成效果报告，每周五汇总，偏差≥20%自动预警</div></div></div></div></div>`},
+    {d:400,h:`<div class="done-b" style="opacity:0;animation:fu .35s ease forwards">✅ 客户活动策划方案已生成，方案已同步至各营业部经理工作台</div>`}
+  ]);
 }
 
 // ====== SCENE 2 ======
@@ -652,35 +660,34 @@ function r2(){
   $('C').innerHTML=`
     <div class="scene-t">队伍圈定面谈</div>
     <div class="scene-s">AI精准圈定面谈对象，生成个性化面谈指引 <span class="atag">营销规划智能体</span></div>
-    ${mkS(['STEP 1 · 语音指令与AI分析','STEP 2 · 面谈对象卡片','STEP 3 · 面谈指引详情','STEP 4 · 面谈档案'],sp)}
+    ${mkS(['STEP 1 · AI分析与面谈指引','STEP 2 · 面谈档案'],sp)}
     <div id="c2"></div>`;
   r2s();
 }
 function r2s(){
   const c=$('c2');
   if(sp===1){
+    // Single chat container for the whole step
     c.innerHTML=`<div class="blk"><div class="blk-t"><span class="ico">💬</span> AI助手对话</div><div class="chat" id="ch2a"></div></div>`;
     const ch2=$('ch2a');
-    idleMic(ch2,'ch2a',[
+    // Round 1: AI circles targets → show cards → then wait for 2nd voice
+    idleMic(ch2,'ch2r1',[
       {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我根据司庆季业务区客户资源中高价值客户分布和目标客户分布情况，制定面谈规划</div>`},
-      {d:1500,h:`<div class="ai-think" id="t2v"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①数据来源=司庆季客户资源 ②分析维度=高价值客户分布+目标客户分布 ③输出=面谈规划</div><div class="tl">▸ 正在调取业务区全量代理人数据，交叉匹配AB类中高温客户×目标客户名单与各代理人辖区客户资源…</div><div class="tl">▸ 按高价值客户拥有量、历史转化率、近期活动表现进行多维评分排序…</div><div class="tl">▸ 圈定完成：35位重点代理人——8位部经理（客户资源集中度高）、20名高绩优人员（转化能力强）、7名潜力代理人 → 按面谈优先级排序</div><div class="tl">▸ 正在为每位重点代理人自动生成个性化面谈指引（谈目标、盘客户、定计划三模块）…</div><span class="cur"></span></div>`,tk:'t2v',tc:5},
-      {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>根据AB类客户的中高温及目标客户分布，已圈定28位重点人员面谈，其中有8位部经理、20位高绩优人员，可优先对他们开展面谈，以下是具体的面谈指引。另外还有50名主管，建议安排辅导专员进行面谈。<br><br>付彩芳部经理、崔向丽部经理……<br><br>请点击下方卡片查看每位代理人的面谈指引。</div>`},
-      {d:400,h:`<div class="mt12"><button class="btn btn-p" onclick="sp=2;r2()">📋 查看面谈对象卡片 ➤</button></div>`}
-    ]);
-  }else if(sp===2){
-    c.innerHTML=`
-      <div class="blk">
-        <div class="blk-t"><span class="ico">👥</span> 面谈对象总览 <span style="font-size:12px;font-weight:400;color:var(--text-muted);margin-left:8px">共圈定28位重点面谈人员，点击卡片查看面谈指引</span></div>
-        <div class="sec-label">👑 部经理 <span class="cnt">8人</span></div>
-        <div class="agent-grid">${mgrData.map((d,i)=>mkMgrCard(d,i)).join('')}</div>
+      {d:1500,h:`<div class="ai-think" id="t2v"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别到关键意图：①数据来源=司庆季客户资源 ②分析维度=高价值客户分布+目标客户分布 ③输出=面谈规划</div><div class="tl">▸ 正在调取业务区全量代理人数据，交叉匹配AB类中高温客户×目标客户名单与各代理人辖区客户资源…</div><div class="tl">▸ 按高价值客户拥有量、历史转化率、近期活动表现进行多维评分排序…</div><div class="tl">▸ 圈定完成：28位重点人员——8位部经理（客户资源集中度高）、20名高绩优人员（转化能力强） → 按面谈优先级排序</div><div class="tl">▸ 正在生成面谈对象名单，请选择具体面谈对象后发起语音指令…</div><span class="cur"></span></div>`,tk:'t2v',tc:5},
+      {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>根据AB类客户的中高温及目标客户分布，已圈定28位重点人员面谈，其中有8位部经理、20位高绩优人员，可优先对他们开展面谈。另外还有50名主管，建议安排辅导专员进行面谈。<br><br>以下为面谈对象名单，请选择具体人员后，通过语音指令告知我，我将为您生成个性化面谈方案。</div>`},
+      {d:500,h:`<div class="blk" style="margin:0;padding:14px 16px;border:none;box-shadow:none;background:var(--bg)">
+        <div class="sec-label" style="margin-top:0">👑 部经理 <span class="cnt">8人</span></div>
+        <div class="agent-grid">${mgrData.map((d,i)=>`<div class="agent-card mgr" style="animation-delay:${i*0.04}s" onclick="selectAgent('mgr',${i})"><div class="ac-name">${d.name}</div><div class="ac-role">${d.dept} · 部经理</div><div class="ac-tag">👑 部经理</div><div class="ac-stats"><span>🔥 高价值客户 ${d.hvc}</span><span>🎯 目标客户 ${d.target}</span></div></div>`).join('')}</div>
         <div class="sec-label">⭐ 高绩优人员 <span class="cnt">20人</span></div>
-        <div class="agent-grid">${perfData.map((d,i)=>mkPerfCard(d,i)).join('')}</div>
-      </div>`;
-  }else if(sp===3){
-    // Full-page guide — render guide content directly into c
-    const g=window._lastGuide;
-    if(g) renderGuidePage(c, g.type, g.idx);
-  }else if(sp===4){
+        <div class="agent-grid">${perfData.map((d,i)=>`<div class="agent-card perf" style="animation-delay:${(i+8)*0.04}s" onclick="selectAgent('perf',${i})"><div class="ac-name">${d.name}</div><div class="ac-role">${d.dept} · 高绩优</div><div class="ac-tag">⭐ 高绩优</div><div class="ac-stats"><span>🔥 客户 ${d.hvc}</span><span>📈 转化 ${d.conv}单</span></div></div>`).join('')}</div>
+      </div>`}
+    ]);
+    // After cards render, set up round 2 voice input
+    window['_viItems_ch2r1'].chatItems.push({
+      d:400, h:'',
+      _afterRender: ()=>{ idleMic(ch2,'ch2r2', _buildGuideItems(ch2)); }
+    });
+  }else if(sp===2){
     // 面谈档案
     const a=window._currentAgent;
     const agentName=a?a.name:'代理人';
@@ -699,13 +706,70 @@ function r2s(){
   }
 }
 
-// showGuide: called from card click in sp===2; stores state, navigates to sp===3
-function showGuide(type, idx){
-  window._lastGuide={type,idx};
-  sp=3;
-  document.querySelectorAll('.sbtn').forEach((b,i)=>{b.classList.toggle('on',i===2);if(i<2)b.classList.add('ok')});
-  r2s();
+// Build the round-2 items: voice → AI think → AI reply → guide panel inline
+function _buildGuideItems(chatEl){
+  // Always use 付彩芳 (mgrData[0]) as the pre-scripted demo target
+  const d=mgrData[0];
+  const type='mgr'; const idx=0;
+  const isMgr=true; const role='部经理';
+  window._currentAgent={...d,type,idx,role,isMgr};
+
+  const goalContent=`<div class="ai-think" style="margin:10px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：结合付彩芳近三年历史收入趋势及4-6月客户资源盘点，设定本月量化目标，明确方向</div></div>
+<div class="talk">"付经理，你近三年NBEV分别为86万、105万、128万，呈稳健上升趋势，今年同期增速约22%。司庆季你团队高价值客户${d.hvc}人，4-6月客户资源盘点中目标客户${d.target}人，中高温客户占比较高。建议本月重点推进金越产品转化，目标触达率80%以上，争取转化${Math.round(d.target*0.35)}单。"</div>`;
+
+  const custContent=`<div class="ai-think" style="margin:10px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：结合4-6月客户资源盘点，帮助付彩芳梳理高优先级客户，制定精准触达策略</div></div>
+<div class="talk">"4-6月盘点数据显示：团队AB类中高温客户中，有${Math.round(d.hvc*0.07)}人近3个月无任何触达记录——这批是最容易流失的高价值客户，优先安排本周回访。另有分红老客42人、旺财资金闲置客户28人，适合优先邀约参加私董会或金越发布会活动。"</div>`;
+
+  const planContent=`<div class="ai-think" style="margin:10px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：将面谈成果转化为具体行动计划，明确时间节点和责任人</div></div>
+<div class="talk">"计划定下来：本周三前完成${Math.round(d.hvc*0.07)}人无触达客户回访分配，本周五前提交4-6月目标客户触达计划表，下周起优先推动分红老客和旺财客户参加营业区活动邀约——每个属员至少邀约5位。我会每天跟进进度。"</div>
+<div style="margin-top:14px">
+  <div class="tk" style="opacity:0;animation:fu .35s .1s ease forwards"><div class="tk-c">✓</div><div class="tk-b"><div class="tt">完成${Math.round(d.hvc*0.07)}人无触达高价值客户回访分配</div><div class="tm">责任人：${d.name} ｜ 截止：本周三</div></div></div>
+  <div class="tk" style="opacity:0;animation:fu .35s .2s ease forwards"><div class="tk-c">✓</div><div class="tk-b"><div class="tt">提交4-6月目标客户触达计划表</div><div class="tm">责任人：${d.name} ｜ 截止：本周五</div></div></div>
+  <div class="tk" style="opacity:0;animation:fu .35s .3s ease forwards"><div class="tk-c">✓</div><div class="tk-b"><div class="tt">推动分红老客/旺财客户参加营业区活动</div><div class="tm">责任人：${d.name}及团队 ｜ 截止：下周一</div></div></div>
+</div>`;
+
+  const guidePanelH=`<div class="guide-panel" style="margin:10px 0">
+    <div class="guide-header" style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div class="gh-name">📋 ${d.name} · ${role} · 面谈指引</div>
+        <div class="gh-sub">${d.dept} ｜ 高价值客户 ${d.hvc}人 ｜ ${d.temp} ｜ 近三年NBEV：86万→105万→128万</div>
+      </div>
+      <span style="font-size:11px;color:var(--blue-500);font-weight:600;background:var(--blue-50);padding:4px 12px;border-radius:6px">👑 部经理</span>
+    </div>
+    <div class="guide-content" style="display:flex;flex-direction:column;gap:16px">
+      <div class="st" style="opacity:0;animation:fu .3s .1s ease forwards">
+        <div class="st-t">🎯 谈目标：明确方向与量化指标</div>${goalContent}
+      </div>
+      <div class="st" style="opacity:0;animation:fu .3s .25s ease forwards">
+        <div class="st-t">📊 盘客户：梳理资源与优先级</div>${custContent}
+      </div>
+      <div class="st" style="opacity:0;animation:fu .3s .4s ease forwards">
+        <div class="st-t">📝 定计划：落实行动与追踪</div>${planContent}
+      </div>
+    </div>
+    <div style="padding:16px 22px 18px;text-align:center">
+      <button class="btn btn-gn" onclick="completeMeeting('${type}',${idx})">✅ 已完成与${d.name}的面谈</button>
+    </div>
+  </div>`;
+
+  return [
+    {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>我想和付彩芳进行面谈，请帮我整理一下付经理近三年历史收入业绩情况，并结合4-6月客户资源盘点分析，生成面谈方案</div>`},
+    {d:1500,h:`<div class="ai-think" id="t2g"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①面谈对象=付彩芳部经理 ②数据需求=近三年历史收入业绩 ③分析维度=4-6月客户资源盘点 ④输出=面谈方案</div><div class="tl">▸ 正在调取付彩芳近三年NBEV及收入数据：2022年86万 → 2023年105万 → 2024年128万，年均增速约22%，业绩稳健上升…</div><div class="tl">▸ 正在调取4-6月客户资源盘点数据：AB类中高温客户${d.hvc}人，目标客户${d.target}人，分红老客42人，旺财资金闲置客户28人…</div><div class="tl">▸ 交叉分析：结合历史业绩趋势和当前客户资源结构，推导本月面谈目标及重点动作…</div><div class="tl">▸ 面谈方案生成完成：谈目标（含历史业绩分析）、盘客户（含4-6月盘点结果）、定计划（含具体行动节点）…</div><span class="cur"></span></div>`,tk:'t2g',tc:5},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已按您要求完成收入分析及客户资源盘点，并生成面谈指引，包括谈目标、盘客户、定计划，以下为具体内容。</div>`},
+    {d:600,h:guidePanelH}
+  ];
 }
+
+// selectAgent: highlight card (visual only, demo always uses 付彩芳)
+function selectAgent(type, idx){
+  document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('active'));
+  const allCards=document.querySelectorAll('.agent-card');
+  const cardIdx=type==='mgr'?idx:(mgrData.length+idx);
+  if(allCards[cardIdx]) allCards[cardIdx].classList.add('active');
+}
+
+// showGuide: legacy stub (no longer used for navigation)
+function showGuide(type, idx){ selectAgent(type, idx); }
 
 // renderGuidePage: builds the full-page guide inside container el
 function renderGuidePage(el, type, idx){
@@ -750,7 +814,7 @@ function renderGuidePage(el, type, idx){
         </div>
         <div style="display:flex;align-items:center;gap:10px">
           <span style="font-size:11px;color:var(--blue-500);font-weight:600;background:var(--blue-50);padding:4px 12px;border-radius:6px">${isMgr?'👑 部经理':'⭐ 高绩优'}</span>
-          <button class="btn" style="padding:7px 16px;background:var(--blue-50);color:var(--blue-600);border:1px solid var(--blue-200);font-size:12px" onclick="sp=2;r2()">← 返回名单</button>
+
         </div>
       </div>
       <div class="guide-content" style="display:flex;flex-direction:column;gap:16px">
@@ -777,8 +841,8 @@ function renderGuidePage(el, type, idx){
 }
 
 function completeMeeting(type,idx){
-  sp=4;
-  document.querySelectorAll('.sbtn').forEach((b,i)=>{b.classList.toggle('on',i===3);if(i<3)b.classList.add('ok')});
+  sp=2;
+  document.querySelectorAll('.sbtn').forEach((b,i)=>{b.classList.toggle('on',i===1);if(i<1)b.classList.add('ok')});
   r2s();
 }
 
@@ -995,22 +1059,23 @@ function r5(){
 }
 function r5s(){
   const c=$('c5');
-  // KPI cards first
+  // KPI cards — aligned with new AI dialogue
   c.innerHTML=`
     <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-label">本月NBEV · 当日新增</div><div class="kpi-val">10<span>万</span></div><div class="pbar"><div class="pfill" style="--w:65%"></div></div><div class="kpi-sub">达成进度 65%</div></div>
-      <div class="kpi"><div class="kpi-label">本月NBEV · 月达成</div><div class="kpi-val">200<span>万</span></div><div class="kpi-sub"><span class="up">↑ 12%</span> 环比增长</div></div>
-      <div class="kpi"><div class="kpi-label">有效活动率</div><div class="kpi-val">50<span>%</span></div><div class="kpi-sub"><span class="ok2">✅ 达标</span></div></div>
+      <div class="kpi"><div class="kpi-label">本月NBEV · 当日新增</div><div class="kpi-val">10<span>万</span></div><div class="pbar"><div class="pfill" style="--w:67%"></div></div><div class="kpi-sub" style="color:var(--orange)">⚠ 进度略低于时间进度</div></div>
+      <div class="kpi"><div class="kpi-label">本月NBEV · 月达成</div><div class="kpi-val">200<span>万</span></div><div class="kpi-sub">目标300万 · 还差<strong style="color:var(--orange)">100万</strong></div></div>
+      <div class="kpi"><div class="kpi-label">全省营业区排名</div><div class="kpi-val">35<span style="font-size:14px">/ 50</span></div><div class="kpi-sub" style="color:var(--orange)">距前20名差距 <strong>30万</strong></div></div>
     </div>
-    <div class="kpi-grid" style="grid-template-columns:1fr 1fr;margin-top:0">
-      <div class="kpi"><div class="kpi-label">1VN活动率</div><div class="kpi-val">15<span>%</span></div><div class="kpi-sub">全区平均</div></div>
-      <div class="kpi" style="border-left:3px solid var(--red)"><div class="kpi-label">阳光部 1VN活动率</div><div class="kpi-val" style="color:var(--red)"><10<span>%</span></div><div class="kpi-sub" style="color:var(--red)">⚠ 达成进度较慢</div></div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-top:0">
+      <div class="kpi"><div class="kpi-label">整体访量</div><div class="kpi-val">2500<span style="font-size:14px">人</span></div><div class="kpi-sub" style="color:var(--orange)">⚠ 低于时间进度</div></div>
+      <div class="kpi"><div class="kpi-label">1V1访量</div><div class="kpi-val">2000<span style="font-size:14px">人</span></div><div class="kpi-sub"><span class="ok2">✅ 进度正常</span></div></div>
+      <div class="kpi"><div class="kpi-label">1VN访量</div><div class="kpi-val">500<span style="font-size:14px">人</span></div><div class="kpi-sub" style="color:var(--orange)">⚠ 进度偏低</div></div>
+      <div class="kpi" style="border-left:3px solid var(--red)"><div class="kpi-label">阳光部 1VN访量</div><div class="kpi-val" style="color:var(--red)">40<span style="font-size:14px">人</span></div><div class="kpi-sub" style="color:var(--red)">⚠ 活动率 &lt;10%</div></div>
     </div>
     <div id="s5chat"></div>`;
-  // after KPI loads, show AI proactive alert
   const t1=setTimeout(()=>{
     const chat=$('s5chat');
-    chat.innerHTML=`<div class="blk" style="border-left:3px solid var(--orange);opacity:0;animation:fu .4s ease forwards"><div class="blk-t" style="color:var(--orange)">🔔 AI主动预警提醒</div><div class="ai-think" id="t5p"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 进度自动追踪完成——扫描8个营业部核心指标，交叉比对NBEV、有效活动率、1VN活动率…</div><div class="tl">▸ 发现异常：阳光部1VN活动率小于10%，显著低于全区平均15%，达成进度较慢</div><div class="tl">▸ 根因分析：关联下钻出勤率、部课活动组织频次… 主因确认为出勤率低+部课活动组织少</div><div class="tl">▸ 正在生成针对性提升建议，匹配阳光部实际情况和可用资源…</div><div class="tl">▸ 建议方案生成完成，包含3条具体可落地的提升措施</div><span class="cur"></span></div><div id="s5alert" class="hid"></div></div>`;
+    chat.innerHTML=`<div class="blk" style="border-left:3px solid var(--orange);opacity:0;animation:fu .4s ease forwards"><div class="blk-t" style="color:var(--orange)">🔔 AI主动预警提醒</div><div class="ai-think" id="t5p"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 自动追踪营业区本月NBEV进度：月达成200万/目标300万，当日新增10万，进度略低于时间进度，全省50个营业区中排名第35，距前20名差距30万…</div><div class="tl">▸ 队伍角度拆解：金钻以上人力已达成目标 ✓；钻石人力距目标仍有差距，识别出近达钻人员名单，可重点追踪…</div><div class="tl">▸ 产品角度拆解：金越系列产品活动率20%，目标30%，差距明显，需加大下周营业部课活动推动力度…</div><div class="tl">▸ 客户/访量角度拆解：整体访量2500人低于预测进度；1V1访量2000人进度正常；1VN访量500人进度偏低，下钻分析为部课活动场次未达预期…</div><div class="tl">▸ 部门异常定位：阳光部1VN访量40人、活动率&lt;10%，明显落后。根因下钻：出勤率低+部课活动组织少，生成3条针对性提升建议…</div><span class="cur"></span></div><div id="s5alert" class="hid"></div></div>`;
     anim('t5p',5,()=>{
       const t2=setTimeout(()=>{
         $('s5alert').classList.remove('hid');
@@ -1019,27 +1084,31 @@ function r5s(){
             <div class="bub ai" style="opacity:1;max-width:100%;align-self:stretch">
               <div class="sn">🤖 AI助手 · 主动提醒</div>
               <div style="margin-top:8px;line-height:1.9;font-size:13px">
-                赵经理，本月NBEV当日新增10万、月达成200万，有效活动率50%，1VN活动率15%。其中<strong style="color:var(--red)">阳光部1VN活动率小于10%，达成进度较慢</strong>，经分析主因为<strong>出勤率低、部课活动组织少</strong>，建议您通过以下几点，提升阳光部指标：
+                赵经理，本月NBEV当日新增10万、全月达成200万、进度略低于时间进度，在全省所有50个营业区中排名第35名，距离前20名差距30万，加油哦！<br><br>
+                具体分析，<strong>从队伍角度</strong>，金钻以上人力达成目标，但钻石人力还有差距，建议对达钻差距较小人员进行追踪；<br><br>
+                <strong>从产品角度</strong>，金越系列产品活动率达成20%，距离目标还有较大差距，建议加大下周营业部课活动推动力度；<br><br>
+                <strong>从客户角度</strong>，区整体访量2500人，低于月预测访量达成时间进度。其中，整体1V1访量2000人、进度正常；1VN访量500人、进度偏低，经分析部课活动场次未达到预期，建议加强对1VN弱体营业部检视推动。<br><br>
+                分部门看，<strong style="color:var(--red)">阳光部1VN访量40人、活动率小于10%，达成进度明显落后时间进度</strong>。主因为出勤率低、部课活动组织少，建议您通过以下几点，提升阳光部指标：
               </div>
             </div>
             <div style="margin-top:12px">
               <div class="st" style="opacity:0;animation:fu .35s .15s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
-                <div class="st-t">建议一：摸底未参会人员，提升早会质量</div>
-                <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：出勤率低是团队管理基本盘问题，需先摸清未参会人员情况，针对性拉回</div></div>
-                <div class="talk">"对阳光部未参会人员情况进行摸底，搞清楚每个人缺席的具体原因，帮助提升早会质量，让大家觉得来了有收获。"</div>
+                <div class="st-t">建议一：摸底未参会人员，提升早会出勤质量</div>
+                <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：阳光部出勤率低是根本问题，需摸清每个人缺席原因，有针对性地提升早会质量和吸引力，把人拉回来</div></div>
+                <div class="talk">"对阳光部未参会人员情况进行摸底，搞清楚每个人缺席的具体原因，针对性改善早会内容和形式，让大家觉得来了有收获、有动力。"</div>
               </div>
               <div class="st" style="opacity:0;animation:fu .35s .3s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
-                <div class="st-t">建议二：加强客经动作管理，推动健康活动客户梳理</div>
-                <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：1VN活动率低的根源是客户梳理不到位，需要部经理从客经动作管理抓起</div></div>
-                <div class="talk">"要求部经理付彩芳加强客经动作完成情况管理，推动团队成员梳理参加健康主题活动的高价值客户名单，确保每位属员都有明确的客户邀约目标。"</div>
+                <div class="st-t">建议二：加强部课活动组织，推动1VN客户梳理</div>
+                <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：1VN访量低的直接原因是部课活动场次不足，需从活动组织和客户梳理两端同步发力，快速补齐访量缺口</div></div>
+                <div class="talk">"要求付彩芳本周内补足部课活动场次，同时推动每位属员梳理本月参加活动的高价值客户名单，确保1VN邀约有名单、有动作、有跟进。"</div>
               </div>
               <div class="st" style="opacity:0;animation:fu .35s .45s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
-                <div class="st-t">建议三：安排朝阳部崔向丽带队进行1VN经验分享</div>
-                <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：用"标杆借力"方式打开局面，安排1VN达成好的朝阳部经理崔向丽带主管入场做实战分享</div></div>
-                <div class="talk">"安排1VN达成好的朝阳营业部经理崔向丽带着主管对阳光部进行1VN活动推动经验分享，监督完成活动组织策划并追踪计划落地。"</div>
+                <div class="st-t">建议三：安排朝阳部崔向丽带队进行1VN经验输出</div>
+                <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：借朝阳部1VN标杆力量打开阳光部的实战信心，用经验分享+现场陪跑方式快速带动部课活动和邀约行动</div></div>
+                <div class="talk">"安排1VN达成第一的朝阳部经理崔向丽带主管入场，对阳光部做一次1VN活动组织实战分享，并监督制定本周活动计划并追踪落地执行。"</div>
               </div>
             </div>
-            <div class="done-b mt12" style="opacity:0;animation:fu .35s .6s ease forwards">✅ 预警诊断已完成，提升建议已生成，建议已同步推送至付彩芳工作台，跨部协同任务已发送至崔向丽</div>
+            <div class="done-b mt12" style="opacity:0;animation:fu .35s .6s ease forwards">✅ 预警诊断已完成，提升建议已生成并推送至付彩芳工作台，跨部协同任务已发送至崔向丽</div>
           </div>`;
       },300);
       T.push(t2);
