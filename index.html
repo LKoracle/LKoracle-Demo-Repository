@@ -343,12 +343,12 @@ body{font-family:'Noto Sans SC','DM Sans',-apple-system,sans-serif;background:va
 <div class="app">
   <div class="main" id="M">
     <div class="tabs" id="tabs">
-      <button class="tab on" onclick="go(1)">场景一 · 活动策划</button>
-      <button class="tab" onclick="go(2)">场景二 · 面谈辅助</button>
-      <button class="tab" onclick="go(3)">场景三 · 进度追踪</button>
-      <button class="tab" onclick="go(4)">场景四 · 素材制作</button>
-      <button class="tab" onclick="go(5)">场景五 · 案例挖掘</button>
-      <button class="tab" onclick="go(6)">场景六 · 报告制作</button>
+      <button class="tab on" onclick="go(1)">制定业务规划、配套活动计划</button>
+      <button class="tab" onclick="go(2)">队伍圈定面谈</button>
+      <button class="tab" onclick="go(3)">业绩追踪</button>
+      <button class="tab" onclick="go(4)">贺报</button>
+      <button class="tab" onclick="go(5)">案例</button>
+      <button class="tab" onclick="go(6)">会议材料</button>
     </div>
     <div id="C"></div>
   </div>
@@ -478,7 +478,7 @@ function rChatSeq(el, items, chatId){
 // ====== SCENE 1 ======
 function r1(){
   $('C').innerHTML=`
-    <div class="scene-t">活动策划</div>
+    <div class="scene-t">制定业务规划、配套活动计划</div>
     <div class="scene-s">AI分析客户资源，自动生成活动策划方案 <span class="atag">营销规划智能体</span></div>
     <div id="c1"></div>`;
   r1s();
@@ -650,7 +650,7 @@ function mkPerfCard(d,i){
 
 function r2(){
   $('C').innerHTML=`
-    <div class="scene-t">面谈辅助</div>
+    <div class="scene-t">队伍圈定面谈</div>
     <div class="scene-s">AI精准圈定面谈对象，生成个性化面谈指引 <span class="atag">营销规划智能体</span></div>
     ${mkS(['STEP 1 · 语音指令与AI分析','STEP 2 · 面谈对象卡片','STEP 3 · 面谈指引详情','STEP 4 · 面谈档案'],sp)}
     <div id="c2"></div>`;
@@ -903,7 +903,7 @@ function downloadPoster(){
 // ====== SCENE 4: 案例挖掘 ======
 function r4(){
   $('C').innerHTML=`
-    <div class="scene-t">案例挖掘、案例归纳</div>
+    <div class="scene-t">案例</div>
     <div class="scene-s">AI自动筛选榜样，录音识别归纳案例 <span class="atag">案例挖掘智能体</span></div>
     <div id="c4"></div>`;
   r4s();
@@ -988,7 +988,7 @@ function downloadCase4(){
 // ====== SCENE 5: 进度追踪闭环 (原场景四) ======
 function r5(){
   $('C').innerHTML=`
-    <div class="scene-t">进度追踪、预警诊断</div>
+    <div class="scene-t">业绩追踪</div>
     <div class="scene-s">AI主动追踪进度，预警诊断并给出提升建议 <span class="atag">管理智能体</span></div>
     <div id="c5"></div>`;
   r5s();
@@ -1051,7 +1051,7 @@ function r5s(){
 // ====== SCENE 6: 报告制作 ======
 function r6(){
   $('C').innerHTML=`
-    <div class="scene-t">报告制作</div>
+    <div class="scene-t">会议材料</div>
     <div class="scene-s">语音指令 → AI分析数据 → 自动生成PPT → 发送会议邀约 <span class="atag">内容创作智能体</span></div>
     <div id="c6"></div>`;
   r6s();
