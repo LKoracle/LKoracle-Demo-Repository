@@ -1137,8 +1137,8 @@ function _renderTrackContent(container){
       <div class="kpi"><div class="kpi-label">本月NBEV · 月达成</div><div class="kpi-val">200<span>万</span></div><div class="kpi-sub">目标300万 · 还差<strong style="color:var(--orange)">100万</strong></div></div>
       <div class="kpi"><div class="kpi-label">全省营业区排名</div><div class="kpi-val">35<span style="font-size:14px">/ 50</span></div><div class="kpi-sub" style="color:var(--orange)">距前20名差距 <strong>30万</strong></div></div>
     </div>
-    <!-- 三维度分析卡 -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:0;opacity:0;animation:fu .4s .15s ease forwards">
+    <!-- 四维度分析卡 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:0;opacity:0;animation:fu .4s .15s ease forwards">
       <!-- 队伍维度 -->
       <div style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm)">
         <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:12px">👑 队伍维度</div>
@@ -1225,6 +1225,21 @@ function _renderTrackContent(container){
             <span style="font-size:13px;font-weight:700;color:var(--orange)">500人 ⚠</span>
           </div>
           <div style="background:var(--orange-bg);border-radius:6px;padding:6px 9px;font-size:11px;color:#92400e;margin-top:2px">⚠ 部课活动场次未达预期，建议加强1VN弱体营业部检视</div>
+        </div>
+      </div>
+      <!-- 部门维度 -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm)">
+        <div style="font-size:11px;font-weight:700;color:var(--red);letter-spacing:.5px;margin-bottom:12px">🏢 部门维度</div>
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:11px">
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-secondary)">朝阳部</span><span style="font-weight:700;color:var(--green)">32% ✅</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-secondary)">瑞祥部</span><span style="font-weight:700;color:var(--blue-500)">25%</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-secondary)">星辰部</span><span style="font-weight:700;color:var(--blue-500)">22%</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-secondary)">明德部</span><span style="font-weight:700;color:var(--text-secondary)">20%</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-secondary)">启明部</span><span style="font-weight:700;color:var(--text-secondary)">18%</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-secondary)">天成部</span><span style="font-weight:700;color:var(--text-secondary)">17%</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border-light)"><span style="color:var(--text-secondary)">越秀部</span><span style="font-weight:700;color:var(--orange)">15%</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0"><span style="font-weight:600;color:var(--red)">阳光部 ⚠</span><span style="font-weight:700;color:var(--red)">9%</span></div>
+          <div style="background:var(--red-bg);border:1px solid var(--red-border);border-radius:6px;padding:6px 8px;margin-top:4px;font-size:10px;color:#b91c1c">1VN访量40人 · 活动率&lt;10%<br>根因：出勤率低 + 部课活动组织少</div>
         </div>
       </div>
     </div>
