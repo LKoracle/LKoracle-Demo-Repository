@@ -1125,7 +1125,7 @@ function pickFmt(fmt){
   const fmtLabel=fmt==='long'?'长图':'视频';
   const items=[
     {d:400,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>${fmtLabel}吧</div>`},
-    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>${fmt==='long'?'好的，已为您生成好，包括应用场景、实操关键、亮点效果、方法提炼等。':'好的，已为您生成好。'}</div>`},
+    {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，已为您生成好，包括应用场景、实操关键、亮点效果、方法提炼等。</div>`},
     {d:600,h:fmt==='long'?buildCaseLongImg():buildCaseVideo()},
     {d:400,h:`<div class="poster-actions" id="caseActions"><button class="btn-outline" onclick="refreshCaseImg()">🔄 换一换</button><button class="btn btn-gn" id="caseConfirmBtn" onclick="downloadCase4()">⬇ 下载</button></div><div id="caseDone4"></div>`}
   ];
