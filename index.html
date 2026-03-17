@@ -59,7 +59,7 @@ body{font-family:'Noto Sans SC','DM Sans',-apple-system,sans-serif;background:va
 .pbar{height:4px;background:var(--blue-50);border-radius:4px;margin-top:10px;overflow:hidden}
 .pfill{height:100%;background:linear-gradient(90deg,var(--blue-400),var(--green));border-radius:4px;width:0;animation:pg 1s .5s ease forwards}
 @keyframes pg{to{width:var(--w)}}
-.ai-think{background:var(--blue-50);border:1px solid var(--blue-100);border-left:3px solid var(--blue-400);border-radius:var(--radius);padding:16px 18px;margin:14px 0;font-size:13px;line-height:1.8;color:var(--text-secondary)}
+.ai-think{background:var(--blue-50);border:1px solid var(--blue-100);border-left:3px solid var(--blue-400);border-radius:var(--radius);padding:16px 18px;margin:14px 0;font-size:13px;line-height:1.8;color:var(--text-secondary);position:relative}
 .ai-think-hd{font-size:11px;font-weight:700;color:var(--blue-500);margin-bottom:10px;display:flex;align-items:center;gap:6px;letter-spacing:.5px}
 .ai-think-hd .dot{width:6px;height:6px;border-radius:50%;background:var(--blue-400);animation:dp 1.2s ease infinite}
 @keyframes dp{0%,100%{opacity:1}50%{opacity:.3}}
@@ -69,6 +69,12 @@ body{font-family:'Noto Sans SC','DM Sans',-apple-system,sans-serif;background:va
 @keyframes ti{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
 .cur{display:inline-block;width:2px;height:13px;background:var(--blue-400);vertical-align:middle;margin-left:2px;animation:bk .7s step-end infinite}
 @keyframes bk{50%{opacity:0}}
+/* Collapsible ai-think body */
+.ai-think-body{overflow:hidden;transition:max-height .35s ease}
+.ai-think-body.collapsed{overflow-y:hidden}
+.ai-think-toggle-wrap{text-align:center;margin-top:6px}
+.ai-think-toggle{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--blue-500);background:none;border:none;cursor:pointer;padding:4px 12px;font-family:inherit;border-radius:20px;background:var(--blue-50);border:1px solid var(--blue-100)}
+.ai-think-toggle:hover{background:var(--blue-100);color:var(--blue-700)}
 .blk{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;box-shadow:var(--shadow-sm);opacity:0;transform:translateY(12px);animation:fu .4s ease forwards}
 .blk-t{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--blue-800)}
 .blk-t .ico{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,var(--blue-500),var(--blue-300));display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff}
@@ -371,12 +377,109 @@ function $(id){return document.getElementById(id)}
 function anim(id,n,cb){
   const el=$(id);if(!el)return;let i=0;const cur=el.querySelector('.cur');
   function nx(){
-    if(i>=n){if(cur)cur.remove();el.classList.add('done');if(cb)cb();return}
+    if(i>=n){
+      if(cur)cur.remove();
+      el.classList.add('done');
+      if(cb)cb();
+      return;
+    }
     const ln=el.querySelectorAll('.tl')[i];
-    if(ln){ln.classList.add('v');if(cur&&ln.nextSibling!==cur)ln.parentNode.insertBefore(cur,ln.nextSibling)}
+    if(ln){
+      ln.classList.add('v');
+      if(cur&&ln.nextSibling!==cur)ln.parentNode.insertBefore(cur,ln.nextSibling);
+      _thinkCheckLine(el, i+1);
+    }
     i++;const t=setTimeout(nx,500+Math.random()*400);T.push(t);
   }
   const t=setTimeout(nx,350);T.push(t);
+}
+
+// Typewriter variant — reveals each .tl char-by-char, grows height dynamically
+// Lines 1-3: container expands to fit. Line 4+: locks at 3-line height, scrolls inside.
+function animTypewriter(id, n, cb){
+  const el=$(id); if(!el) return;
+  const cur=el.querySelector('.cur');
+  const lines=el.querySelectorAll('.tl');
+  let lineIdx=0;
+  let body=null; // will be created on first line
+
+  // Pre-hide all .tl lines (they're in DOM but height=0)
+  lines.forEach(ln=>{ ln.style.display='none'; ln.style.opacity='1'; });
+  // Remove <span class="cur"> from DOM temporarily (will re-insert during typing)
+  if(cur) cur.remove();
+
+  function nextLine(){
+    if(lineIdx>=n){
+      if(body) { body.style.maxHeight=body.scrollHeight+'px'; }
+      if(cur){ const lastLn=lines[n-1]; if(lastLn&&body) body.appendChild(cur); }
+      el.classList.add('done');
+      if(cb) cb();
+      return;
+    }
+    const ln=lines[lineIdx];
+    if(!ln){ lineIdx++; nextLine(); return; }
+
+    // Show this line (reveal it into flow)
+    ln.style.display='';
+    const fullText=ln.dataset.tw || ln.textContent;
+    if(!ln.dataset.tw) ln.dataset.tw=fullText; // cache original text
+    ln.textContent='';
+
+    // First line: wrap body now
+    if(lineIdx===0){
+      const hd=el.querySelector('.ai-think-hd');
+      // Wrap all .tl lines in a body div
+      const children=[...el.childNodes].filter(n=>n!==hd&&!(n.classList&&n.classList.contains('ai-think-toggle-wrap')));
+      body=document.createElement('div');
+      body.className='ai-think-body';
+      body.style.maxHeight='0px';
+      body.style.overflow='hidden';
+      body.style.transition='max-height .15s ease';
+      children.forEach(c=>body.appendChild(c));
+      el.appendChild(body);
+    }
+
+    // Move cursor into body after ln
+    if(cur){ body.appendChild(cur); }
+
+    let ci=0;
+    const CHAR_DELAY=16;
+    function typeChar(){
+      if(ci>=fullText.length){
+        // Line done — expand body to show it
+        if(lineIdx < MAX_LINES){
+          // Lines 1–3: grow container to fit content
+          body.style.maxHeight=body.scrollHeight+'px';
+        } else {
+          // Line 4+: lock at 3-line height, add toggle if not present
+          if(!el.querySelector('.ai-think-toggle-wrap')){
+            const fs=parseFloat(getComputedStyle(body).fontSize||'13');
+            const lh=parseFloat(getComputedStyle(body).lineHeight||String(fs*1.8));
+            const cap=lh*MAX_LINES;
+            body.style.maxHeight=cap+'px';
+            body.classList.add('collapsed');
+            const wrap=document.createElement('div');
+            wrap.className='ai-think-toggle-wrap';
+            wrap.innerHTML=`<button class="ai-think-toggle" onclick="toggleThink(this)">▾ 展开全部</button>`;
+            el.appendChild(wrap);
+          }
+          body.scrollTop=body.scrollHeight;
+        }
+        lineIdx++;
+        const t=setTimeout(nextLine, 100); T.push(t);
+        return;
+      }
+      ln.textContent=fullText.slice(0,ci+1);
+      if(cur && body && ln.nextSibling!==cur) body.insertBefore(cur, ln.nextSibling||null);
+      // While typing line 4+: keep scrolled to bottom
+      if(lineIdx >= MAX_LINES) body.scrollTop=body.scrollHeight;
+      ci++;
+      const t=setTimeout(typeChar, CHAR_DELAY); T.push(t);
+    }
+    typeChar();
+  }
+
+  const t=setTimeout(nextLine, 350); T.push(t);
 }
 
 function mkS(labels,active){
@@ -464,7 +567,8 @@ function rChatSeq(el, items, chatId){
     }
     el.insertAdjacentHTML('beforeend', it.h);
     if(it.tk){
-      anim(it.tk, it.tc, ()=>{ const t=setTimeout(()=>step(i+1), 400); T.push(t); });
+      const animFn = it.tw ? animTypewriter : anim;
+      animFn(it.tk, it.tc, ()=>{ const t=setTimeout(()=>step(i+1), 400); T.push(t); });
     } else {
       const gap = i===0 ? 700 : 500;
       const t=setTimeout(()=>step(i+1), gap);
@@ -489,7 +593,7 @@ function r1s(){
   // ── Round 1: path analysis → customer map → wait for 2nd voice input ──
   idleMic(ch,'ch1r1',[
     {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>这个月营业区需要达成NBEV 300万、主推产品为金越，请帮我规划目标达成路径及经营动作</div>`},
-    {d:1500,h:`<div class="ai-think" id="t1a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①本月目标=NBEV 300万 ②主推产品=金越系列 ③输出=目标达成路径+经营动作规划</div><div class="tl">▸ 拆解队伍结构：按现有出勤人力测算，达成NBEV 300万需人均NBEV约1万，推导各层级人力目标：双金钻10人、金钻30人、钻石80人、有效活动人力40人…</div><div class="tl">▸ 拆解产品结构：达成问责目标需金越系列产品活动率≥30%、重疾保障类产品活动率≥10%，匹配各营业部历史产品结构偏差…</div><div class="tl">▸ 拆解客户结构：调取业务区全量客户数据——AB类/中高温高价值客户4,239人、低温客户53,249名、司庆季目标客户31,816人…</div><div class="tl">▸ 路径推导完成：达成目标需成交中高温客户350人，预估访量3,500人（1V1访量3,000 + 1VN访量500），正在生成客户地图…</div><span class="cur"></span></div>`,tk:'t1a',tc:5},
+    {d:1500,h:`<div class="ai-think" id="t1a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①本月目标=NBEV 300万 ②主推产品=金越系列 ③输出=目标达成路径+经营动作规划</div><div class="tl">▸ 拆解队伍结构：按现有出勤人力测算，达成NBEV 300万需人均NBEV约1万，推导各层级人力目标：双金钻10人、金钻30人、钻石80人、有效活动人力40人…</div><div class="tl">▸ 拆解产品结构：达成问责目标需金越系列产品活动率≥30%、重疾保障类产品活动率≥10%，匹配各营业部历史产品结构偏差…</div><div class="tl">▸ 拆解客户结构：调取业务区全量客户数据——AB类/中高温高价值客户4,239人、低温客户53,249名、司庆季目标客户31,816人…</div><div class="tl">▸ 路径推导完成：达成目标需成交中高温客户350人，预估访量3,500人（1V1访量3,000 + 1VN访量500），正在生成客户地图…</div><span class="cur"></span></div>`,tk:'t1a',tc:5,tw:true},
     {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，根据本月营业区NBEV问责目标，为您规划业务达成路径如下：<br><br>按<strong>队伍结构</strong>，本月需达成人均NBEV 1万，结合历史数据分析需达成双金钻10人、金钻30人、钻石80人、有效活动人力40人。针对金钻以上建议推动参加营业区私董会，针对钻石人员建议参加营业部课活动。<br><br>按<strong>产品结构</strong>，达成问责目标需达成金越系列产品活动率30%、重疾保障类产品活动率10%。</div>`},
     {d:600,h:`<div class="blk" style="opacity:0;animation:fu .5s ease forwards;padding:18px 20px">
   <div class="blk-t" style="margin-bottom:14px"><span class="ico">👥</span> 队伍结构分析</div>
@@ -606,7 +710,7 @@ function r7s(){
   const ch=$('ch7');
   idleMic(ch,'ch7r1',[
     {d:300,h:`<div class="bub usr"><div class="sn">👤 赵虎（语音输入）</div>请帮我结合1VN访量目标及目标客户，推荐客户活动场次及策划方案</div>`},
-    {d:1500,h:`<div class="ai-think" id="t7a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①基于1VN访量目标500人次 ②结合目标客户名单31,816人 ③输出=活动场次推荐+策划方案</div><div class="tl">▸ 拆解1VN访量目标：需达成1VN访量500人次，按每场营业区活动覆盖30人客户、每场部课活动覆盖16人客户计算活动场次…</div><div class="tl">▸ 推算活动场次：营业区活动4场（覆盖中高温客户约120人）+ 部课活动25场（覆盖约400人）= 合计覆盖520人次，满足1VN访量目标…</div><div class="tl">▸ 匹配目标客户名单：分红老客→私董会、有钱妈妈名单→女神节活动，按名单特征匹配最优活动主题…</div><div class="tl">▸ 方案生成完成：营业区4场活动策划 + 25场部课活动安排 + 低温客户线上升温方案，正在输出《客户活动策划方案》…</div><span class="cur"></span></div>`,tk:'t7a',tc:5},
+    {d:1500,h:`<div class="ai-think" id="t7a"><div class="ai-think-hd"><span class="dot"></span> AI 推理中…</div><div class="tl">▸ 语音识别完成，正在解析指令… 识别关键意图：①基于1VN访量目标500人次 ②结合目标客户名单31,816人 ③输出=活动场次推荐+策划方案</div><div class="tl">▸ 拆解1VN访量目标：需达成1VN访量500人次，按每场营业区活动覆盖30人客户、每场部课活动覆盖16人客户计算活动场次…</div><div class="tl">▸ 推算活动场次：营业区活动4场（覆盖中高温客户约120人）+ 部课活动25场（覆盖约400人）= 合计覆盖520人次，满足1VN访量目标…</div><div class="tl">▸ 匹配目标客户名单：分红老客→私董会、有钱妈妈名单→女神节活动，按名单特征匹配最优活动主题…</div><div class="tl">▸ 方案生成完成：营业区4场活动策划 + 25场部课活动安排 + 低温客户线上升温方案，正在输出《客户活动策划方案》…</div><span class="cur"></span></div>`,tk:'t7a',tc:5,tw:true},
     {d:800,h:`<div class="bub ai"><div class="sn">🤖 AI助手</div>好的，结合您业务区1VN访量目标及目标客户情况，建议组织<strong>营业区活动4场、部课活动25场</strong>；营业区活动建议针对中高温客户以转化为目的策划（对分红老客名单建议组织参加私董会活动，对于有钱妈妈名单建议组织女神节活动…），每场需达成参加客户<strong>30人</strong>；对低温客户推动参与线上活动、互动升温。同时，推动营业部每周组织一场活动，每场至少需达成参加客户<strong>16人</strong>。<br><br>已为您生成业务区活动策划方案，请查看《客户活动策划方案》。</div>`},
     {d:600,h:`<div class="plan-card" style="opacity:0;animation:fu .5s ease forwards"><div class="plan-card-head"><div><div style="display:flex;align-items:center;gap:8px"><span class="pch-icon">📋</span><span class="pch-title">客户活动策划方案</span></div><div class="pch-sub" style="margin-left:32px">营销规划智能体自动生成 ｜ 司庆季专项 · 金越主推</div></div></div><div class="plan-body"><div class="plan-section"><div class="ps-hd">🎯 活动场次目标</div><div class="plan-row"><div class="pr-icon">📌</div><div>营业区活动：<strong>4场</strong>，每场参加客户<strong>≥30人</strong>，覆盖中高温客户约120人次</div></div><div class="plan-row"><div class="pr-icon">📌</div><div>部课活动：<strong>25场</strong>，每场参加客户<strong>≥16人</strong>，覆盖客户约400人次</div></div><div class="plan-row"><div class="pr-icon">📌</div><div>合计1VN覆盖：<strong>≥520人次</strong>，满足本月1VN访量目标500人次</div></div></div><div class="plan-section"><div class="ps-hd">📅 营业区活动方案（共4场 · 每场≥30人）</div><div class="plan-row"><div class="pr-icon">1️⃣</div><div><strong>第1场 · 私董会（分红老客专场）</strong><br>目标名单：分红老客名单，高价值中高温客户<br>活动形式：专属答谢+金越增额权益分享+老客转介绍激励<br>邀约目标：≥30人，由各部经理点对点精准邀约</div></div><div class="plan-row"><div class="pr-icon">2️⃣</div><div><strong>第2场 · 女神节活动（有钱妈妈专场）</strong><br>目标名单：有钱妈妈名单，女性中高温客户<br>活动形式：女神节主题沙龙+家庭财富保障+金越产品专属礼遇<br>邀约目标：≥30人，结合节日场景精准邀约</div></div><div class="plan-row"><div class="pr-icon">3️⃣</div><div><strong>第3场 · 金越产品发布会（高价值客户专场）</strong><br>目标名单：AB类中高温目标客户<br>活动形式：金越权益发布+1对1保障方案咨询+现场签单<br>邀约目标：≥30人，各部按客户资源占比分配邀约任务</div></div><div class="plan-row"><div class="pr-icon">4️⃣</div><div><strong>第4场 · 健康权益体验会（续保/到期客户专场）</strong><br>目标名单：医疗险续保+重疾险到期客户<br>活动形式：健康权益体验+金越组合推荐+二次促成<br>邀约目标：≥30人，结合续保/到期名单精准邀约</div></div></div><div class="plan-section"><div class="ps-hd">🏠 部课活动方案（共25场 · 每场≥16人）</div><div class="plan-row"><div class="pr-icon">📆</div><div><strong>每周5场部课活动</strong>（8个营业部轮次安排，共5周25场）<br>轮换主题：①金越产品权益科普 ②家庭保障规划 ③重疾/医疗险知识 ④养老规划分享 ⑤客户答谢互动<br>每场参加客户：<strong>≥16人</strong>，由部经理负责邀约组织</div></div></div><div class="plan-section"><div class="ps-hd">📱 低温客户·线上互动升温</div><div class="plan-row"><div class="pr-icon">📲</div><div><strong>每周内容触达：</strong>AI筛选53,249名低温客户，按客价分层推送金越资讯，每周2次精准触达</div></div><div class="plan-row"><div class="pr-icon">🎥</div><div><strong>每月线上直播：</strong>1场「金越权益解读」线上直播，设置专属福利引导留资升温</div></div><div class="plan-row"><div class="pr-icon">📞</div><div><strong>AI外呼跟进：</strong>对互动频次高的低温客户，AI自动发起外呼邀约，推送代理人跟进转化</div></div></div><div class="plan-section"><div class="ps-hd">📈 效果追踪</div><div class="plan-row"><div class="pr-icon">✅</div><div><strong>活动追踪：</strong>营业区4场到场人数、部课25场到场人数、1VN访量完成率<br><strong>转化追踪：</strong>中高温客户成交人数、金越活动率、NBEV周度完成进度<br><strong>追踪节奏：</strong>每场活动后3日内AI生成效果报告，每周五汇总，偏差≥20%自动预警</div></div></div></div></div>`},
     {d:400,h:`<div class="done-b" style="opacity:0;animation:fu .35s ease forwards">✅ 客户活动策划方案已生成，方案已同步至各营业部经理工作台</div>`}
@@ -1355,6 +1459,83 @@ function rChat(el, items){
   });
 }
 function hFab(){$('nf').classList.add('hid')}
+
+// ── Collapsible ai-think blocks ───────────────────────────────────────────────
+const LINE_HEIGHT_EM = 1.8;   // matches CSS line-height
+const MAX_LINES = 3;
+
+// ── Collapsible ai-think: triggered line-by-line during anim() ───────────────
+
+// Called after each line i (1-based) appears inside an .ai-think block
+function _thinkCheckLine(el, lineCount){
+  if(lineCount < MAX_LINES + 1) return; // ≤3 lines: do nothing
+
+  // First time we exceed 3 lines: wrap content and collapse
+  if(!el.dataset.thinkWrapped){
+    el.dataset.thinkWrapped='1';
+    const hd=el.querySelector('.ai-think-hd');
+    if(!hd) return;
+    // Wrap all siblings after hd into a scrolling body
+    const children=[...el.childNodes].filter(n=>n!==hd&&!(n.classList&&n.classList.contains('ai-think-toggle-wrap')));
+    const body=document.createElement('div');
+    body.className='ai-think-body collapsed';
+    children.forEach(n=>body.appendChild(n));
+    el.appendChild(body);
+    // Set max-height to 3 lines
+    requestAnimationFrame(()=>{
+      const fs=parseFloat(getComputedStyle(body).fontSize||'13');
+      const lh=parseFloat(getComputedStyle(body).lineHeight||String(fs*1.8));
+      body.style.maxHeight=(lh*MAX_LINES)+'px';
+      // Add toggle button (centered)
+      const wrap=document.createElement('div');
+      wrap.className='ai-think-toggle-wrap';
+      wrap.innerHTML=`<button class="ai-think-toggle" onclick="toggleThink(this)">▾ 展开全部</button>`;
+      el.appendChild(wrap);
+    });
+    return;
+  }
+
+  // Already wrapped: scroll to bottom so latest line stays visible
+  const body=el.querySelector('.ai-think-body');
+  if(body&&body.classList.contains('collapsed')){
+    body.scrollTop=body.scrollHeight;
+  }
+}
+
+function initThinkCollapse(root){
+  // For static .ai-think blocks (not driven by anim), e.g. already-done blocks
+  (root||document).querySelectorAll('.ai-think.done').forEach(el=>{
+    if(el.dataset.thinkWrapped) return;
+    const lines=el.querySelectorAll('.tl.v');
+    if(lines.length<=MAX_LINES) return;
+    // Simulate the wrap
+    _thinkCheckLine(el, MAX_LINES+1);
+  });
+}
+
+function toggleThink(btn){
+  const el=btn.closest('.ai-think');
+  const body=el.querySelector('.ai-think-body');
+  if(!body) return;
+  if(body.classList.contains('collapsed')){
+    body.classList.remove('collapsed');
+    body.style.overflow='visible';
+    body.style.maxHeight=body.scrollHeight+'px';
+    btn.textContent='▴ 收起';
+  } else {
+    const fs=parseFloat(getComputedStyle(body).fontSize||'13');
+    const lh=parseFloat(getComputedStyle(body).lineHeight||String(fs*1.8));
+    body.style.overflow='hidden';
+    body.style.maxHeight=(lh*MAX_LINES)+'px';
+    body.classList.add('collapsed');
+    btn.textContent='▾ 展开全部';
+  }
+}
+
+// Watch for newly inserted done ai-think blocks (static ones without anim)
+const _thinkObserver=new MutationObserver(()=>initThinkCollapse(document));
+_thinkObserver.observe(document.body,{childList:true,subtree:true});
+
 go(1);
 </script>
 </body>
