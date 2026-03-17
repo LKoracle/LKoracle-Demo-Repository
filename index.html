@@ -71,7 +71,7 @@ body{font-family:'Noto Sans SC','DM Sans',-apple-system,sans-serif;background:va
 @keyframes bk{50%{opacity:0}}
 /* Collapsible ai-think body */
 .ai-think-body{overflow:hidden;transition:max-height .35s ease}
-.ai-think-body.collapsed{overflow-y:hidden}
+.ai-think-body.collapsed{overflow-y:auto}
 .ai-think-toggle-wrap{text-align:center;margin-top:6px}
 .ai-think-toggle{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--blue-500);background:none;border:none;cursor:pointer;padding:4px 12px;font-family:inherit;border-radius:20px;background:var(--blue-50);border:1px solid var(--blue-100)}
 .ai-think-toggle:hover{background:var(--blue-100);color:var(--blue-700)}
@@ -410,10 +410,14 @@ function animTypewriter(id, n, cb){
 
   function nextLine(){
     if(lineIdx>=n){
-      if(body) {
+      if(body){
+        if(n <= MAX_LINES){
+          // ≤4 lines total: expand to full content height
           body.style.maxHeight=body.scrollHeight+'px';
+        }
+        // >4 lines: height already locked, leave it
       }
-      if(cur){ const lastLn=lines[n-1]; if(lastLn&&body) body.appendChild(cur); }
+      if(cur){ const lastLn=lines[n-1]; if(lastLn) lastLn.appendChild(cur); }
       el.classList.add('done');
       if(cb) cb();
       return;
@@ -424,13 +428,12 @@ function animTypewriter(id, n, cb){
     // Show this line (reveal it into flow)
     ln.style.display='';
     const fullText=ln.dataset.tw || ln.textContent;
-    if(!ln.dataset.tw) ln.dataset.tw=fullText; // cache original text
+    if(!ln.dataset.tw) ln.dataset.tw=fullText;
     ln.textContent='';
 
-    // First line: wrap body now
+    // First line: wrap all .tl lines into a body div
     if(lineIdx===0){
       const hd=el.querySelector('.ai-think-hd');
-      // Wrap all .tl lines in a body div
       const children=[...el.childNodes].filter(n=>n!==hd&&!(n.classList&&n.classList.contains('ai-think-toggle-wrap')));
       body=document.createElement('div');
       body.className='ai-think-body';
@@ -441,30 +444,37 @@ function animTypewriter(id, n, cb){
       el.appendChild(body);
     }
 
-    // Move cursor into body after ln
-    if(cur){ body.appendChild(cur); }
+    // Line 5+ (lineIdx >= MAX_LINES): lock height NOW, before typing begins
+    if(lineIdx >= MAX_LINES){
+      if(!el.querySelector('.ai-think-toggle-wrap')){
+        const fs=parseFloat(getComputedStyle(body).fontSize||'13');
+        const lh=parseFloat(getComputedStyle(body).lineHeight||String(fs*1.8));
+        const cap=lh*MAX_LINES;
+        body.style.transition='none';
+        body.style.maxHeight=cap+'px';
+        body.style.overflowY='auto';
+        body.classList.add('collapsed');
+        const wrap=document.createElement('div');
+        wrap.className='ai-think-toggle-wrap';
+        wrap.innerHTML=`<button class="ai-think-toggle" onclick="toggleThink(this)">▾ 展开全部</button>`;
+        el.appendChild(wrap);
+      }
+    }
+
+    // Move cursor inline into the current line (not appended to body as separate node)
+    if(cur){ ln.appendChild(cur); }
 
     let ci=0;
     const CHAR_DELAY=16;
     function typeChar(){
       if(ci>=fullText.length){
-        // Line done — expand body to show it
+        // Line done — remove cursor from ln (will be re-placed on next line)
+        if(cur && cur.parentNode===ln) cur.parentNode.removeChild(cur);
+        // Lines 1–4: grow to fit
         if(lineIdx < MAX_LINES){
-          // Lines 1–3: grow container to fit content
           body.style.maxHeight=body.scrollHeight+'px';
         } else {
-          // Line 4+: lock at 3-line height, add toggle if not present
-          if(!el.querySelector('.ai-think-toggle-wrap')){
-            const fs=parseFloat(getComputedStyle(body).fontSize||'13');
-            const lh=parseFloat(getComputedStyle(body).lineHeight||String(fs*1.8));
-            const cap=lh*MAX_LINES;
-            body.style.maxHeight=cap+'px';
-            body.classList.add('collapsed');
-            const wrap=document.createElement('div');
-            wrap.className='ai-think-toggle-wrap';
-            wrap.innerHTML=`<button class="ai-think-toggle" onclick="toggleThink(this)">▾ 展开全部</button>`;
-            el.appendChild(wrap);
-          }
+          // Line 5+: height already locked, just scroll to bottom
           body.scrollTop=body.scrollHeight;
         }
         lineIdx++;
@@ -472,8 +482,9 @@ function animTypewriter(id, n, cb){
         return;
       }
       ln.textContent=fullText.slice(0,ci+1);
-      if(cur && body && ln.nextSibling!==cur) body.insertBefore(cur, ln.nextSibling||null);
-      // While typing line 4+: keep scrolled to bottom
+      // Keep cursor at end of line text (inline)
+      if(cur) ln.appendChild(cur);
+      // Line 5+: keep scrolled to bottom while typing
       if(lineIdx >= MAX_LINES) body.scrollTop=body.scrollHeight;
       ci++;
       const t=setTimeout(typeChar, CHAR_DELAY); T.push(t);
@@ -1464,7 +1475,7 @@ function hFab(){$('nf').classList.add('hid')}
 
 // ── Collapsible ai-think blocks ───────────────────────────────────────────────
 const LINE_HEIGHT_EM = 1.8;   // matches CSS line-height
-const MAX_LINES = Infinity;  // 全量展示，不折叠
+const MAX_LINES = 4;          // 超过4行后锁高滚动，显示展开按钮
 
 // ── Collapsible ai-think: triggered line-by-line during anim() ───────────────
 
@@ -1483,12 +1494,14 @@ function _thinkCheckLine(el, lineCount){
     body.className='ai-think-body collapsed';
     children.forEach(n=>body.appendChild(n));
     el.appendChild(body);
-    // Set max-height to 3 lines
+    // Lock height to exactly 4 lines, enable inner scroll
     requestAnimationFrame(()=>{
       const fs=parseFloat(getComputedStyle(body).fontSize||'13');
       const lh=parseFloat(getComputedStyle(body).lineHeight||String(fs*1.8));
       body.style.maxHeight=(lh*MAX_LINES)+'px';
-      // Add toggle button (centered)
+      body.style.overflowY='auto';
+      body.scrollTop=body.scrollHeight;
+      // Add toggle button below
       const wrap=document.createElement('div');
       wrap.className='ai-think-toggle-wrap';
       wrap.innerHTML=`<button class="ai-think-toggle" onclick="toggleThink(this)">▾ 展开全部</button>`;
@@ -1520,14 +1533,18 @@ function toggleThink(btn){
   const body=el.querySelector('.ai-think-body');
   if(!body) return;
   if(body.classList.contains('collapsed')){
+    // Expand: show all content, no height cap
     body.classList.remove('collapsed');
+    body.style.overflowY='visible';
     body.style.overflow='visible';
     body.style.maxHeight=body.scrollHeight+'px';
     btn.textContent='▴ 收起';
   } else {
+    // Collapse back to 4-line height with inner scroll
     const fs=parseFloat(getComputedStyle(body).fontSize||'13');
     const lh=parseFloat(getComputedStyle(body).lineHeight||String(fs*1.8));
     body.style.overflow='hidden';
+    body.style.overflowY='auto';
     body.style.maxHeight=(lh*MAX_LINES)+'px';
     body.classList.add('collapsed');
     btn.textContent='▾ 展开全部';
