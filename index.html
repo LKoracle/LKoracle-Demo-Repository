@@ -1132,8 +1132,9 @@ function _renderTrackContent(container){
   const c = container || $('c5');
   c.innerHTML=`
     <!-- NBEV总览行 -->
-    <div class="kpi-grid" style="opacity:0;animation:fu .4s ease forwards">
+    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);opacity:0;animation:fu .4s ease forwards">
       <div class="kpi"><div class="kpi-label">本月NBEV · 当日新增</div><div class="kpi-val">10<span>万</span></div><div class="pbar"><div class="pfill" style="--w:67%"></div></div><div class="kpi-sub" style="color:var(--orange)">⚠ 进度略低于时间进度</div></div>
+      <div class="kpi"><div class="kpi-label">本月NBEV · 本周新增</div><div class="kpi-val">55<span>万</span></div><div class="kpi-sub">上周同期持平</div></div>
       <div class="kpi"><div class="kpi-label">本月NBEV · 月达成</div><div class="kpi-val">200<span>万</span></div><div class="kpi-sub">目标300万 · 还差<strong style="color:var(--orange)">100万</strong></div></div>
       <div class="kpi"><div class="kpi-label">全省营业区排名</div><div class="kpi-val">35<span style="font-size:14px">/ 50</span></div><div class="kpi-sub" style="color:var(--orange)">距前20名差距 <strong>30万</strong></div></div>
     </div>
@@ -1254,31 +1255,57 @@ function _renderTrackContent(container){
           <div class="bub ai" style="opacity:1;max-width:100%;align-self:stretch">
             <div class="sn">🤖 AI助手 · 主动提醒</div>
             <div style="margin-top:8px;line-height:1.9;font-size:13px">
-              赵经理，本月NBEV当日新增10万、全月达成200万、进度略低于时间进度，在全省所有50个营业区中排名第35名，距离前20名差距30万，加油哦！<br><br>
+              赵经理，本月NBEV，当日新增10万、本周新增55万（上周同期持平）全月达成200万（略低于时间进度），在全省所有50个营业区中排名第35名，距离前20名差距30万，加油哦！<br><br>
               具体分析，<strong>从队伍角度</strong>，金钻以上人力达成目标，但钻石人力还有差距，建议对达钻差距较小人员进行追踪；<br><br>
               <strong>从产品角度</strong>，金越系列产品活动率达成20%，距离目标还有较大差距，建议加大下周营业部课活动推动力度；<br><br>
               <strong>从客户角度</strong>，区整体访量2500人，低于月预测访量达成时间进度。其中，整体1V1访量2000人、进度正常；1VN访量500人、进度偏低，经分析部课活动场次未达到预期，建议加强对1VN弱体营业部检视推动。<br><br>
               分部门看，<strong style="color:var(--red)">阳光部1VN访量40人、活动率小于10%，达成进度明显落后时间进度</strong>。主因为出勤率低、部课活动组织少，建议您通过以下几点，提升阳光部指标：
             </div>
           </div>
-          <div style="margin-top:12px">
-            <div class="st" style="opacity:0;animation:fu .35s .15s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
-              <div class="st-t">建议一：摸底未参会人员，提升早会出勤质量</div>
-              <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：阳光部出勤率低是根本问题，需摸清每个人缺席原因，有针对性地提升早会质量和吸引力，把人拉回来</div></div>
-              <div class="talk">"对阳光部未参会人员情况进行摸底，搞清楚每个人缺席的具体原因，针对性改善早会内容和形式，让大家觉得来了有收获、有动力。"</div>
+          <!-- 报告形式：阳光部提升建议 -->
+          <div class="archive-card" style="margin:12px 0;opacity:0;animation:fu .4s .2s ease forwards">
+            <div class="archive-header">
+              <div class="ah-title">📋 阳光部达成分析与提升建议报告</div>
+              <div class="ah-time">AI自动生成 · 本周</div>
             </div>
-            <div class="st" style="opacity:0;animation:fu .35s .3s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
-              <div class="st-t">建议二：加强部课活动组织，推动1VN客户梳理</div>
-              <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：1VN访量低的直接原因是部课活动场次不足，需从活动组织和客户梳理两端同步发力，快速补齐访量缺口</div></div>
-              <div class="talk">"要求付彩芳本周内补足部课活动场次，同时推动每位属员梳理本月参加活动的高价值客户名单，确保1VN邀约有名单、有动作、有跟进。"</div>
-            </div>
-            <div class="st" style="opacity:0;animation:fu .35s .45s ease forwards;margin-left:0;border-left:3px solid var(--blue-300)">
-              <div class="st-t">建议三：安排朝阳部崔向丽带队进行1VN经验输出</div>
-              <div class="ai-think" style="margin:8px 0;padding:10px 14px"><div class="ai-think-hd"><span class="dot" style="animation:none;background:var(--green)"></span> AI 推理完成</div><div class="tl v">▸ 策略意图：借朝阳部1VN标杆力量打开阳光部实战信心，用经验分享+现场陪跑快速带动部课活动和邀约行动</div></div>
-              <div class="talk">"安排1VN达成第一的朝阳部经理崔向丽带主管入场，对阳光部做一次1VN活动组织实战分享，并监督制定本周活动计划并追踪落地执行。"</div>
+            <div class="archive-body">
+              <div class="archive-section">
+                <div class="as-label">📊 当前达成情况</div>
+                <div class="as-content">阳光部本月1VN访量 <strong>40人</strong>、1VN活动率 <strong>&lt;10%</strong>，达成进度明显落后时间进度。根因分析：<strong>出勤率低</strong> + <strong>部课活动组织少</strong>，需立即介入干预。</div>
+              </div>
+              <div class="archive-section">
+                <div class="as-label">💡 建议一：摸底未参会人员，提升早会出勤质量</div>
+                <div class="as-content">对阳光部未参会人员进行逐一摸底，明确每个人缺席的具体原因，针对性改善早会内容与形式，提升早会对属员的吸引力与价值感，让大家觉得来了有收获、有动力。</div>
+              </div>
+              <div class="archive-section">
+                <div class="as-label">💡 建议二：补足部课活动场次，推动1VN客户梳理</div>
+                <div class="as-content">要求付彩芳本周内补足缺失的部课活动场次，同时推动每位属员梳理本月可参加活动的高价值客户名单，确保1VN邀约有名单、有动作、有跟进记录。</div>
+              </div>
+              <div class="archive-section">
+                <div class="as-label">💡 建议三：引入朝阳部崔向丽带队经验输出</div>
+                <div class="as-content">安排1VN活动率全区第一的朝阳部经理崔向丽带主管入场，对阳光部开展1VN活动组织实战分享，现场制定本周活动计划，并跟踪落地执行情况。</div>
+              </div>
+              <div class="archive-section" style="border-bottom:none;padding-bottom:0;margin-bottom:0">
+                <div class="as-label">📌 行动节点</div>
+                <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+                  <div class="archive-task"><div class="at-icon">→</div><div class="at-body"><div class="at-title">本周内：付彩芳完成未参会人员摸底并补足部课场次</div><div class="at-meta">责任人：付彩芳 ｜ 截止：本周五</div></div></div>
+                  <div class="archive-task"><div class="at-icon">→</div><div class="at-body"><div class="at-title">下周一：崔向丽带队入场开展1VN经验分享</div><div class="at-meta">责任人：崔向丽 + 付彩芳 ｜ 截止：下周一</div></div></div>
+                  <div class="archive-task"><div class="at-icon">→</div><div class="at-body"><div class="at-title">持续追踪：每日监控阳光部1VN访量完成进度</div><div class="at-meta">责任人：赵虎 ｜ 持续追踪</div></div></div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="done-b mt12" style="opacity:0;animation:fu .35s .6s ease forwards">✅ 预警诊断已完成，提升建议已推送至付彩芳工作台，跨部协同任务已发送至崔向丽</div>
+          <!-- 两段AI回复合并，紧接报告卡片 -->
+          <div class="bub ai" style="opacity:0;animation:fu .35s .5s ease forwards;max-width:100%;align-self:stretch">
+            <div class="sn">🤖 AI助手 · 主动提醒</div>
+            <div style="margin-top:6px;line-height:1.9;font-size:13px">
+              已为您将阳光部达成分析提升建议生成报告，供您一键转发阳光部经理及主管，请您查阅。
+            </div>
+            <div style="margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <button class="btn btn-p" style="font-size:12px;padding:8px 18px" onclick="this.disabled=true;this.textContent='✅ 已转发';this.style.opacity='.5'">📤 一键转发阳光部</button>
+              <span style="font-size:11px;color:var(--text-muted)">转发后，付彩芳及阳光部主管将收到报告通知</span>
+            </div>
+          </div>
         </div>`;
     },300);
     T.push(t2);
